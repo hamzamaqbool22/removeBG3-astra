@@ -1,0 +1,110 @@
+{
+  "bbox": [
+    37,
+    275,
+    1055,
+    598
+  ],
+  "contacts": [
+    {
+      "x": 189.9571750231291,
+      "y": 590.0,
+      "radius": 73.7045402401372,
+      "half_width": 22.642034761770148,
+      "confidence": 0.9313726200436797,
+      "source": "rubber_rim_ellipse",
+      "ellipse": {
+        "cx": 189.9571750231291,
+        "cy": 519.6777590701455,
+        "rx": 70.75635863053171,
+        "ry": 73.7045402401372
+      },
+      "evidence": {
+        "rubber": 0.8425925925925926,
+        "rim_detail": 1.0,
+        "contact_agreement": 0.9607429012447031,
+        "protrusion": 0.9514322269882547
+      }
+    },
+    {
+      "x": 838.5624528166118,
+      "y": 597.0,
+      "radius": 74.7928587762933,
+      "half_width": 22.9763662160773,
+      "confidence": 0.9800102579098904,
+      "source": "rubber_rim_ellipse",
+      "ellipse": {
+        "cx": 838.5624528166118,
+        "cy": 523.1603886052181,
+        "rx": 71.80114442524156,
+        "ry": 74.7928587762933
+      },
+      "evidence": {
+        "rubber": 0.9398148148148148,
+        "rim_detail": 1.0,
+        "contact_agreement": 0.9968239876919553,
+        "protrusion": 1.0
+      }
+    }
+  ],
+  "inferred_contacts": [
+    {
+      "x": 208.53176196688003,
+      "y": 579.8776848931561,
+      "radius": 66.33408621612348,
+      "half_width": 22.642034761770148,
+      "confidence": 0.34,
+      "source": "inferred_opposite_track"
+    },
+    {
+      "x": 857.1370397603627,
+      "y": 586.8776848931561,
+      "radius": 67.31357289866398,
+      "half_width": 22.9763662160773,
+      "confidence": 0.34,
+      "source": "inferred_opposite_track"
+    }
+  ],
+  "footprint": [
+    [
+      189.9571750231291,
+      590.0
+    ],
+    [
+      838.5624528166118,
+      597.0
+    ],
+    [
+      857.1370397603627,
+      586.8776848931561
+    ],
+    [
+      208.53176196688003,
+      579.8776848931561
+    ]
+  ],
+  "ground_y": 597.0,
+  "ground_anchor": [
+    514.2598139198705,
+    597.0
+  ],
+  "confidence": 0.955691438976785,
+  "view_cues": {
+    "support_mode": "visible_wheel_pair",
+    "detected_wheel_count": 2,
+    "aspect_ratio": 3.151702786377709,
+    "wheel_ellipse_ratio": 0.9599999999999999,
+    "side_on_score": 0.9233615340777444,
+    "perspective_score": 0.06082052044450201,
+    "overhang_asymmetry": -0.06133161725496,
+    "opposite_track_shift": [
+      18.574586943750912,
+      -10.122315106843882
+    ],
+    "contact_slope": 0.010792388282459854
+  },
+  "limitations": [
+    "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+    "Occluded tire contacts and opposite track are uncertain estimates."
+  ]
+}

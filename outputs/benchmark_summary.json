@@ -1,0 +1,80 @@
+{
+  "selected_model": "birefnet-general",
+  "selection_reason": "Best inspected edge/mirror preservation and highest reference-proxy mask agreement; CPU quality takes priority over speed.",
+  "models": [
+    {
+      "run": "birefnet-general",
+      "model": "birefnet-general",
+      "mean_warmed_inference_seconds": 6.938171880125083,
+      "peak_rss_gib": 8.212295532226562,
+      "reference_proxy_iou": 0.9912110892726845,
+      "reference_proxy_boundary_f1_2px": 0.9734456053932661
+    },
+    {
+      "run": "birefnet-general-lean",
+      "model": "birefnet-general",
+      "mean_warmed_inference_seconds": 7.6570956773121,
+      "peak_rss_gib": 9.876937866210938,
+      "reference_proxy_iou": 0.9912110892726845,
+      "reference_proxy_boundary_f1_2px": 0.9734456053932661
+    },
+    {
+      "run": "birefnet-general-lite",
+      "model": "birefnet-general-lite",
+      "mean_warmed_inference_seconds": 4.153124690063123,
+      "peak_rss_gib": 7.5055694580078125,
+      "reference_proxy_iou": 0.9883135437041634,
+      "reference_proxy_boundary_f1_2px": 0.9545701833504228
+    },
+    {
+      "run": "isnet-general-use",
+      "model": "isnet-general-use",
+      "mean_warmed_inference_seconds": 0.49275254687381675,
+      "peak_rss_gib": 2.3097381591796875,
+      "reference_proxy_iou": 0.9862870382478217,
+      "reference_proxy_boundary_f1_2px": 0.932659783264858
+    },
+    {
+      "run": "u2net",
+      "model": "u2net",
+      "mean_warmed_inference_seconds": 0.1856214999961594,
+      "peak_rss_gib": 2.13934326171875,
+      "reference_proxy_iou": 0.9833757280431669,
+      "reference_proxy_boundary_f1_2px": 0.9169348361083994
+    }
+  ],
+  "pipeline": {
+    "mean_warm_seconds": 7.588803142866319,
+    "first_image_seconds_including_load": 9.99492475000443,
+    "peak_rss_gib": 7.730804443359375,
+    "mean_postprocessing_seconds": 0.14461305737495422,
+    "timing_note": "Processing excludes diagnostic rendering and disk I/O. Model load is separately reported on first image. Cached runs exclude inference."
+  },
+  "robustness": {
+    "count": 16,
+    "mean_mask_consistency_iou": 0.9963111577384441,
+    "minimum_mask_consistency_iou": 0.9945811647283086,
+    "maximum_normalized_bbox_delta_pixels": 7.1759229890387815
+  },
+  "artifact_validation": {
+    "views": [
+      "back",
+      "front",
+      "frontLeft",
+      "frontRight",
+      "left",
+      "rearLeft",
+      "rearRight",
+      "right"
+    ],
+    "all_required_stages_present": true,
+    "all_final_images_byte_identical_to_supplied_baseline": true,
+    "all_original_images_use_single_inference": true
+  },
+  "limitations": [
+    "Eight views of one sedan; controlled variants are not unseen vehicles.",
+    "Reference-derived masks are approximate and do not score shadow realism.",
+    "Geometry is heuristic; hidden contacts and track are inferred.",
+    "Small subjects may require an extra inference, increasing runtime."
+  ]
+}

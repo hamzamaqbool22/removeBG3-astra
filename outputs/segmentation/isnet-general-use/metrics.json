@@ -1,0 +1,164 @@
+{
+  "model": "isnet-general-use",
+  "providers": [
+    "CPUExecutionProvider"
+  ],
+  "threads": 6,
+  "repeats": 2,
+  "load_seconds_including_download_if_missing": 0.810008291999111,
+  "warmup_seconds": 0.9589366250002058,
+  "loaded_rss_mib": 442.515625,
+  "sampled_peak_rss_mib": 2352.109375,
+  "process_peak_rss_mib": 2365.171875,
+  "mean_median_wall_seconds": 0.49275254687381675,
+  "images": [
+    {
+      "image": "back.png",
+      "size": [
+        1024,
+        768
+      ],
+      "wall_seconds": [
+        0.6731503329938278,
+        0.4453203330049291
+      ],
+      "cpu_seconds": [
+        3.594398,
+        2.4511460000000014
+      ],
+      "median_wall_seconds": 0.5592353329993784,
+      "rss_after_mib": 2231.46875
+    },
+    {
+      "image": "front.png",
+      "size": [
+        1024,
+        768
+      ],
+      "wall_seconds": [
+        0.4567932079953607,
+        0.5305127909959992
+      ],
+      "cpu_seconds": [
+        2.5469880000000007,
+        2.9036969999999993
+      ],
+      "median_wall_seconds": 0.49365299949568,
+      "rss_after_mib": 2146.828125
+    },
+    {
+      "image": "frontLeft.png",
+      "size": [
+        1024,
+        768
+      ],
+      "wall_seconds": [
+        0.5663660419959342,
+        0.5125065419997554
+      ],
+      "cpu_seconds": [
+        2.7878380000000007,
+        2.8758359999999996
+      ],
+      "median_wall_seconds": 0.5394362919978448,
+      "rss_after_mib": 2141.0625
+    },
+    {
+      "image": "frontRight.png",
+      "size": [
+        1024,
+        768
+      ],
+      "wall_seconds": [
+        0.4679146669950569,
+        0.4585732910054503
+      ],
+      "cpu_seconds": [
+        2.6587619999999994,
+        2.678775999999999
+      ],
+      "median_wall_seconds": 0.4632439790002536,
+      "rss_after_mib": 2141.796875
+    },
+    {
+      "image": "left.png",
+      "size": [
+        1094,
+        808
+      ],
+      "wall_seconds": [
+        0.4874030000064522,
+        0.4824572920042556
+      ],
+      "cpu_seconds": [
+        2.757425999999999,
+        2.7199519999999993
+      ],
+      "median_wall_seconds": 0.4849301460053539,
+      "rss_after_mib": 2149.578125
+    },
+    {
+      "image": "rearLeft.png",
+      "size": [
+        1024,
+        768
+      ],
+      "wall_seconds": [
+        0.4658399169857148,
+        0.4699999169970397
+      ],
+      "cpu_seconds": [
+        2.655850000000001,
+        2.700749000000002
+      ],
+      "median_wall_seconds": 0.46791991699137725,
+      "rss_after_mib": 2150.453125
+    },
+    {
+      "image": "rearRight.png",
+      "size": [
+        1024,
+        768
+      ],
+      "wall_seconds": [
+        0.45917912499862723,
+        0.47992183300084434
+      ],
+      "cpu_seconds": [
+        2.6369399999999956,
+        2.8010670000000033
+      ],
+      "median_wall_seconds": 0.4695504789997358,
+      "rss_after_mib": 2080.28125
+    },
+    {
+      "image": "right.png",
+      "size": [
+        1072,
+        814
+      ],
+      "wall_seconds": [
+        0.4783853749977425,
+        0.44971708400407806
+      ],
+      "cpu_seconds": [
+        2.701793000000002,
+        2.586712999999996
+      ],
+      "median_wall_seconds": 0.46405122950091027,
+      "rss_after_mib": 2080.53125
+    }
+  ],
+  "environment": {
+    "python": "3.13.4",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "ram_gib": 24.0,
+    "packages": {
+      "rembg": "2.0.69",
+      "onnxruntime": "1.29.0",
+      "numpy": "2.5.2",
+      "Pillow": "11.3.0"
+    }
+  }
+}

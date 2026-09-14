@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vehicle-grounding"
+version = "0.1.0"
+description = "CPU vehicle segmentation, consistent framing, and procedural ground shadows"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "rembg[cpu]==2.0.69",
+  "onnxruntime>=1.20,<2",
+  "numpy>=2,<3",
+  "Pillow>=11,<13",
+  "opencv-python-headless>=4.10,<6",
+  "scipy>=1.14,<2",
+  "psutil>=6,<8",
+]
+
+[project.scripts]
+vehicle-process = "vehicle_pipeline.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["vehicle_pipeline*"]

@@ -1,0 +1,8 @@
+# Exact direct-package versions used for the supplied CPU benchmark.
+rembg[cpu]==2.0.69
+onnxruntime==1.29.0
+numpy==2.5.2
+Pillow==11.3.0
+opencv-python-headless==5.0.0.93
+scipy==1.18.1
+psutil==6.1.1

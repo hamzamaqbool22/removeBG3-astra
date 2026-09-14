@@ -1,0 +1,64 @@
+{
+  "model": "birefnet-general-lean",
+  "note": "Approximate vehicle alpha extracted from reference RGBA, downsampled to reference size. Black vehicle edges and shadow are ambiguous. These scores do not measure final shadow realism.",
+  "mean_iou": 0.9912110892726845,
+  "mean_boundary_f1_2px": 0.9734456053932661,
+  "images": [
+    {
+      "image": "back.png",
+      "mask_iou": 0.9936385023578685,
+      "boundary_f1_2px": 0.9706359928622986,
+      "missing_interior_fraction": 0.0,
+      "excess_exterior_pixels": 57
+    },
+    {
+      "image": "front.png",
+      "mask_iou": 0.9898049599182729,
+      "boundary_f1_2px": 0.9788779997908557,
+      "missing_interior_fraction": 0.0,
+      "excess_exterior_pixels": 30
+    },
+    {
+      "image": "frontLeft.png",
+      "mask_iou": 0.9926629324931443,
+      "boundary_f1_2px": 0.984301164546283,
+      "missing_interior_fraction": 0.0006263749694451234,
+      "excess_exterior_pixels": 0
+    },
+    {
+      "image": "frontRight.png",
+      "mask_iou": 0.9905639448035141,
+      "boundary_f1_2px": 0.9901390487604202,
+      "missing_interior_fraction": 0.0,
+      "excess_exterior_pixels": 3
+    },
+    {
+      "image": "left.png",
+      "mask_iou": 0.9893441485342421,
+      "boundary_f1_2px": 0.949350574479488,
+      "missing_interior_fraction": 0.0,
+      "excess_exterior_pixels": 9
+    },
+    {
+      "image": "rearLeft.png",
+      "mask_iou": 0.992296970141589,
+      "boundary_f1_2px": 0.9874213774269264,
+      "missing_interior_fraction": 0.0002153846153846154,
+      "excess_exterior_pixels": 0
+    },
+    {
+      "image": "rearRight.png",
+      "mask_iou": 0.9890244249196736,
+      "boundary_f1_2px": 0.9566302120594606,
+      "missing_interior_fraction": 0.00187877432341758,
+      "excess_exterior_pixels": 6
+    },
+    {
+      "image": "right.png",
+      "mask_iou": 0.9923528310131718,
+      "boundary_f1_2px": 0.9702084732203956,
+      "missing_interior_fraction": 0.0,
+      "excess_exterior_pixels": 5
+    }
+  ]
+}

@@ -1,0 +1,382 @@
+{
+  "purpose": "Diagnostics of supplied references only; no production view labels or reference masks.",
+  "caveats": [
+    "Vehicle masks are approximate decompositions of reference RGBA, not manual ground truth.",
+    "Semitransparent black vehicle edges can be mistaken for shadow; opaque black shadow can remain in the vehicle mask.",
+    "Observable shadow masks omit ground shadow occluded by the vehicle.",
+    "The reference image is downsampled; edge metrics below its resolution have limited meaning.",
+    "All eight images depict one white sedan under similar outdoor conditions; these do not establish generalization."
+  ],
+  "framing_recommendation": {
+    "canvas_aspect_ratio": "4:3",
+    "vehicle_width_cap_fraction": 0.88,
+    "vehicle_height_target_fraction": 0.46,
+    "nearest_ground_contact_y_fraction": 0.82,
+    "scale_rule": "s = min(0.88 * canvas_width / vehicle_width, 0.46 * canvas_height / vehicle_height)",
+    "placement_rule": "Center the robust vehicle bounds horizontally; translate the nearest reliable tire contact to the common ground baseline.",
+    "explanation": "A common height target limits apparent zoom; a width cap fits long side profiles. Front/back views remain narrower without artificially filling the side-view width. Keep extra space below contacts for blur.",
+    "limitation": "A 2D mask cannot establish metric vehicle size or remove perspective differences. Wheel diameter can refine this only when contacts/wheels are reliable."
+  },
+  "images": [
+    {
+      "name": "back",
+      "source_size": [
+        1024,
+        768
+      ],
+      "reference_size": [
+        577,
+        433
+      ],
+      "source_to_reference_scale_xy": [
+        0.5634765625,
+        0.5638020833333334
+      ],
+      "opaque_interior_rgb_mae_0_255": 1.8001,
+      "opaque_interior_rgb_p95_absolute_error": 6.0,
+      "vehicle_bbox_alpha_gt_127": [
+        93,
+        101,
+        485,
+        388
+      ],
+      "vehicle_width_fraction": 0.67938,
+      "vehicle_height_fraction": 0.66282,
+      "vehicle_bottom_fraction": 0.89607,
+      "vehicle_projected_aspect_ratio": 1.36585,
+      "shadow_bbox_alpha_gt_10": [
+        112,
+        374,
+        467,
+        433
+      ],
+      "shadow_alpha_support_quantiles": [
+        46.0,
+        169.0,
+        226.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        285.614,
+        397.497
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 10637.663,
+      "shadow_pixels_gt_10": 17816
+    },
+    {
+      "name": "front",
+      "source_size": [
+        1024,
+        768
+      ],
+      "reference_size": [
+        577,
+        433
+      ],
+      "source_to_reference_scale_xy": [
+        0.5634765625,
+        0.5638020833333334
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.4195,
+      "opaque_interior_rgb_p95_absolute_error": 8.0,
+      "vehicle_bbox_alpha_gt_127": [
+        90,
+        105,
+        486,
+        390
+      ],
+      "vehicle_width_fraction": 0.68631,
+      "vehicle_height_fraction": 0.6582,
+      "vehicle_bottom_fraction": 0.90069,
+      "vehicle_projected_aspect_ratio": 1.38947,
+      "shadow_bbox_alpha_gt_10": [
+        105,
+        380,
+        473,
+        433
+      ],
+      "shadow_alpha_support_quantiles": [
+        102.0,
+        213.0,
+        230.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        285.448,
+        404.289
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 12755.463,
+      "shadow_pixels_gt_10": 17438
+    },
+    {
+      "name": "frontLeft",
+      "source_size": [
+        1024,
+        768
+      ],
+      "reference_size": [
+        577,
+        433
+      ],
+      "source_to_reference_scale_xy": [
+        0.5634765625,
+        0.5638020833333334
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.4424,
+      "opaque_interior_rgb_p95_absolute_error": 8.0,
+      "vehicle_bbox_alpha_gt_127": [
+        49,
+        133,
+        529,
+        342
+      ],
+      "vehicle_width_fraction": 0.83189,
+      "vehicle_height_fraction": 0.48268,
+      "vehicle_bottom_fraction": 0.78984,
+      "vehicle_projected_aspect_ratio": 2.29665,
+      "shadow_bbox_alpha_gt_10": [
+        53,
+        281,
+        512,
+        349
+      ],
+      "shadow_alpha_support_quantiles": [
+        31.0,
+        188.0,
+        230.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        261.984,
+        317.233
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 6100.055,
+      "shadow_pixels_gt_10": 9903
+    },
+    {
+      "name": "frontRight",
+      "source_size": [
+        1024,
+        768
+      ],
+      "reference_size": [
+        577,
+        433
+      ],
+      "source_to_reference_scale_xy": [
+        0.5634765625,
+        0.5638020833333334
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.405,
+      "opaque_interior_rgb_p95_absolute_error": 7.0,
+      "vehicle_bbox_alpha_gt_127": [
+        49,
+        136,
+        528,
+        342
+      ],
+      "vehicle_width_fraction": 0.83016,
+      "vehicle_height_fraction": 0.47575,
+      "vehicle_bottom_fraction": 0.78984,
+      "vehicle_projected_aspect_ratio": 2.32524,
+      "shadow_bbox_alpha_gt_10": [
+        66,
+        282,
+        523,
+        350
+      ],
+      "shadow_alpha_support_quantiles": [
+        32.0,
+        193.0,
+        230.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        320.641,
+        318.177
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 6182.741,
+      "shadow_pixels_gt_10": 9927
+    },
+    {
+      "name": "left",
+      "source_size": [
+        1094,
+        808
+      ],
+      "reference_size": [
+        581,
+        429
+      ],
+      "source_to_reference_scale_xy": [
+        0.5310786106032906,
+        0.530940594059406
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.4591,
+      "opaque_interior_rgb_p95_absolute_error": 8.0,
+      "vehicle_bbox_alpha_gt_127": [
+        21,
+        147,
+        560,
+        317
+      ],
+      "vehicle_width_fraction": 0.92771,
+      "vehicle_height_fraction": 0.39627,
+      "vehicle_bottom_fraction": 0.73893,
+      "vehicle_projected_aspect_ratio": 3.17059,
+      "shadow_bbox_alpha_gt_10": [
+        26,
+        282,
+        550,
+        322
+      ],
+      "shadow_alpha_support_quantiles": [
+        27.0,
+        178.0,
+        229.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        291.969,
+        302.09
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 6336.545,
+      "shadow_pixels_gt_10": 10680
+    },
+    {
+      "name": "rearLeft",
+      "source_size": [
+        1024,
+        768
+      ],
+      "reference_size": [
+        577,
+        433
+      ],
+      "source_to_reference_scale_xy": [
+        0.5634765625,
+        0.5638020833333334
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.3447,
+      "opaque_interior_rgb_p95_absolute_error": 7.0,
+      "vehicle_bbox_alpha_gt_127": [
+        49,
+        136,
+        528,
+        342
+      ],
+      "vehicle_width_fraction": 0.83016,
+      "vehicle_height_fraction": 0.47575,
+      "vehicle_bottom_fraction": 0.78984,
+      "vehicle_projected_aspect_ratio": 2.32524,
+      "shadow_bbox_alpha_gt_10": [
+        59,
+        284,
+        502,
+        349
+      ],
+      "shadow_alpha_support_quantiles": [
+        32.0,
+        193.0,
+        230.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        303.647,
+        316.951
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 6257.761,
+      "shadow_pixels_gt_10": 10023
+    },
+    {
+      "name": "rearRight",
+      "source_size": [
+        1024,
+        768
+      ],
+      "reference_size": [
+        577,
+        433
+      ],
+      "source_to_reference_scale_xy": [
+        0.5634765625,
+        0.5638020833333334
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.2233,
+      "opaque_interior_rgb_p95_absolute_error": 7.0,
+      "vehicle_bbox_alpha_gt_127": [
+        49,
+        134,
+        527,
+        346
+      ],
+      "vehicle_width_fraction": 0.82842,
+      "vehicle_height_fraction": 0.48961,
+      "vehicle_bottom_fraction": 0.79908,
+      "vehicle_projected_aspect_ratio": 2.25472,
+      "shadow_bbox_alpha_gt_10": [
+        67,
+        281,
+        517,
+        353
+      ],
+      "shadow_alpha_support_quantiles": [
+        31.0,
+        180.0,
+        230.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        253.403,
+        320.933
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 6317.933,
+      "shadow_pixels_gt_10": 10416
+    },
+    {
+      "name": "right",
+      "source_size": [
+        1072,
+        814
+      ],
+      "reference_size": [
+        573,
+        435
+      ],
+      "source_to_reference_scale_xy": [
+        0.5345149253731343,
+        0.5343980343980343
+      ],
+      "opaque_interior_rgb_mae_0_255": 2.4612,
+      "opaque_interior_rgb_p95_absolute_error": 8.0,
+      "vehicle_bbox_alpha_gt_127": [
+        8,
+        150,
+        548,
+        320
+      ],
+      "vehicle_width_fraction": 0.94241,
+      "vehicle_height_fraction": 0.3908,
+      "vehicle_bottom_fraction": 0.73563,
+      "vehicle_projected_aspect_ratio": 3.17647,
+      "shadow_bbox_alpha_gt_10": [
+        25,
+        283,
+        543,
+        325
+      ],
+      "shadow_alpha_support_quantiles": [
+        25.0,
+        174.0,
+        229.0,
+        230.0
+      ],
+      "shadow_opacity_weighted_centroid": [
+        281.175,
+        304.322
+      ],
+      "visible_shadow_equivalent_opaque_area_pixels": 6052.396,
+      "shadow_pixels_gt_10": 10259
+    }
+  ]
+}

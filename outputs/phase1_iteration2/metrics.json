@@ -1,0 +1,2236 @@
+{
+  "model": "birefnet-general",
+  "cached_masks": true,
+  "process_peak_rss_mib": 399.515625,
+  "timing_note": "Processing excludes diagnostic rendering and disk I/O. Model load is separately reported on first image. Cached runs exclude inference.",
+  "images": [
+    {
+      "image": "back.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1024,
+        768
+      ],
+      "geometry": {
+        "bbox": [
+          153,
+          178,
+          861,
+          689
+        ],
+        "contacts": [
+          {
+            "x": 223.0,
+            "y": 688.0,
+            "radius": 74.095,
+            "half_width": 25.933249999999997,
+            "confidence": 0.5461288232674596,
+            "source": "occluded_tire_lower_silhouette"
+          },
+          {
+            "x": 800.0,
+            "y": 686.0,
+            "radius": 74.095,
+            "half_width": 25.933249999999997,
+            "confidence": 0.5432960742388181,
+            "source": "occluded_tire_lower_silhouette"
+          }
+        ],
+        "inferred_contacts": [],
+        "footprint": [
+          [
+            223.0,
+            688.0
+          ],
+          [
+            800.0,
+            686.0
+          ],
+          [
+            736.53,
+            624.68
+          ],
+          [
+            286.47,
+            626.68
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            198.22,
+            688.0
+          ],
+          [
+            824.78,
+            686.0
+          ],
+          [
+            761.31,
+            624.68
+          ],
+          [
+            261.69000000000005,
+            626.68
+          ]
+        ],
+        "ground_y": 688.0,
+        "ground_anchor": [
+          511.5,
+          688.0
+        ],
+        "confidence": 0.5447124487531388,
+        "view_cues": {
+          "support_mode": "occluded_axle_pair",
+          "detected_wheel_count": 0,
+          "aspect_ratio": 1.385518590998043,
+          "wheel_ellipse_ratio": 0.0,
+          "side_on_score": 0.0,
+          "perspective_score": 0.0,
+          "overhang_asymmetry": 0.0,
+          "opposite_track_shift": [
+            0.0,
+            -61.32
+          ],
+          "contact_slope": -0.0034662045060658577
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          267.2619960861057,
+          261.8113502935421,
+          756.7380039138943,
+          615.0913502935421
+        ],
+        "contacts": [
+          {
+            "x": 315.65651663405083,
+            "y": 614.4000000000001,
+            "radius": 51.22560000000001,
+            "half_width": 17.92896,
+            "confidence": 0.5461288232674596,
+            "source": "occluded_tire_lower_silhouette"
+          },
+          {
+            "x": 714.5656360078278,
+            "y": 613.0172994129159,
+            "radius": 51.22560000000001,
+            "half_width": 17.92896,
+            "confidence": 0.5432960742388181,
+            "source": "occluded_tire_lower_silhouette"
+          }
+        ],
+        "inferred_contacts": [],
+        "footprint": [
+          [
+            315.65651663405083,
+            614.4000000000001
+          ],
+          [
+            714.5656360078278,
+            613.0172994129159
+          ],
+          [
+            670.6856328767124,
+            570.6236994129158
+          ],
+          [
+            359.5365197651663,
+            572.0064
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            298.5248563600783,
+            614.4000000000001
+          ],
+          [
+            731.6972962818004,
+            613.0172994129159
+          ],
+          [
+            687.8172931506849,
+            570.6236994129158
+          ],
+          [
+            342.40485949119375,
+            572.0064
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          515.1110763209393,
+          614.4000000000001
+        ],
+        "confidence": 0.5447124487531388,
+        "view_cues": {
+          "support_mode": "occluded_axle_pair",
+          "detected_wheel_count": 0,
+          "aspect_ratio": 1.385518590998043,
+          "wheel_ellipse_ratio": 0.0,
+          "side_on_score": 0.0,
+          "perspective_score": 0.0,
+          "overhang_asymmetry": 0.0,
+          "opposite_track_shift": [
+            0.0,
+            -42.393600000000006
+          ],
+          "contact_slope": -0.0034662045060658577
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.6913502935420744,
+        "translation": [
+          161.48540117416826,
+          138.75099804305285
+        ],
+        "matrix": [
+          [
+            0.6913502812385559,
+            0.0,
+            161.4853973388672
+          ],
+          [
+            0.0,
+            0.6913502812385559,
+            138.75099182128906
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.0020695000130217522,
+        "geometry_seconds": 0.004431624984135851,
+        "placement_seconds": 0.0148637090169359,
+        "shadow_and_compositing_seconds": 0.035915749991545454,
+        "processing_seconds": 0.06555404199752957
+      }
+    },
+    {
+      "image": "front.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1024,
+        768
+      ],
+      "geometry": {
+        "bbox": [
+          159,
+          184,
+          865,
+          690
+        ],
+        "contacts": [
+          {
+            "x": 206.0,
+            "y": 688.0,
+            "radius": 73.36999999999999,
+            "half_width": 25.679499999999994,
+            "confidence": 0.5302422808981743,
+            "source": "occluded_tire_lower_silhouette"
+          },
+          {
+            "x": 811.0,
+            "y": 689.0,
+            "radius": 73.36999999999999,
+            "half_width": 25.679499999999994,
+            "confidence": 0.5301144424759626,
+            "source": "occluded_tire_lower_silhouette"
+          }
+        ],
+        "inferred_contacts": [],
+        "footprint": [
+          [
+            206.0,
+            688.0
+          ],
+          [
+            811.0,
+            689.0
+          ],
+          [
+            744.45,
+            628.28
+          ],
+          [
+            272.55,
+            627.28
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            181.29,
+            688.0
+          ],
+          [
+            835.71,
+            689.0
+          ],
+          [
+            769.1600000000001,
+            628.28
+          ],
+          [
+            247.84,
+            627.28
+          ]
+        ],
+        "ground_y": 689.0,
+        "ground_anchor": [
+          508.5,
+          689.0
+        ],
+        "confidence": 0.5301783616870684,
+        "view_cues": {
+          "support_mode": "occluded_axle_pair",
+          "detected_wheel_count": 0,
+          "aspect_ratio": 1.3952569169960474,
+          "wheel_ellipse_ratio": 0.0,
+          "side_on_score": 0.0,
+          "perspective_score": 0.0,
+          "overhang_asymmetry": 0.0,
+          "opposite_track_shift": [
+            0.0,
+            -60.72
+          ],
+          "contact_slope": 0.001652892561983471
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          265.54181818181814,
+          261.81818181818187,
+          758.4581818181819,
+          615.098181818182
+        ],
+        "contacts": [
+          {
+            "x": 298.35636363636365,
+            "y": 613.7018181818182,
+            "radius": 51.2256,
+            "half_width": 17.928959999999996,
+            "confidence": 0.5302422808981743,
+            "source": "occluded_tire_lower_silhouette"
+          },
+          {
+            "x": 720.7563636363636,
+            "y": 614.4000000000001,
+            "radius": 51.2256,
+            "half_width": 17.928959999999996,
+            "confidence": 0.5301144424759626,
+            "source": "occluded_tire_lower_silhouette"
+          }
+        ],
+        "inferred_contacts": [],
+        "footprint": [
+          [
+            298.35636363636365,
+            613.7018181818182
+          ],
+          [
+            720.7563636363636,
+            614.4000000000001
+          ],
+          [
+            674.2923636363637,
+            572.0064000000001
+          ],
+          [
+            344.8203636363636,
+            571.3082181818183
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            281.1042909090909,
+            613.7018181818182
+          ],
+          [
+            738.0084363636364,
+            614.4000000000001
+          ],
+          [
+            691.5444363636365,
+            572.0064000000001
+          ],
+          [
+            327.56829090909093,
+            571.3082181818183
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          509.55636363636364,
+          614.4000000000001
+        ],
+        "confidence": 0.5301783616870684,
+        "view_cues": {
+          "support_mode": "occluded_axle_pair",
+          "detected_wheel_count": 0,
+          "aspect_ratio": 1.3952569169960474,
+          "wheel_ellipse_ratio": 0.0,
+          "side_on_score": 0.0,
+          "perspective_score": 0.0,
+          "overhang_asymmetry": 0.0,
+          "opposite_track_shift": [
+            0.0,
+            -42.3936
+          ],
+          "contact_slope": 0.001652892561983471
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.6981818181818182,
+        "translation": [
+          154.53090909090906,
+          133.35272727272735
+        ],
+        "matrix": [
+          [
+            0.6981818079948425,
+            0.0,
+            154.53091430664062
+          ],
+          [
+            0.0,
+            0.6981818079948425,
+            133.35272216796875
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.001262917008716613,
+        "geometry_seconds": 0.0036360829835757613,
+        "placement_seconds": 0.01387958400300704,
+        "shadow_and_compositing_seconds": 0.035082041984423995,
+        "processing_seconds": 0.0615551249939017
+      }
+    },
+    {
+      "image": "frontLeft.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1024,
+        768
+      ],
+      "geometry": {
+        "bbox": [
+          86,
+          235,
+          939,
+          604
+        ],
+        "contacts": [
+          {
+            "x": 474.915,
+            "y": 603.0,
+            "radius": 66.42,
+            "half_width": 19.979136,
+            "confidence": 1.0222031845824004,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 474.915,
+              "cy": 536.58,
+              "rx": 62.434799999999996,
+              "ry": 66.42
+            },
+            "evidence": {
+              "rubber": 0.9490740740740741,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9978238299073778,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 871.915,
+            "y": 529.7132117968655,
+            "radius": 66.42,
+            "half_width": 13.177728,
+            "confidence": 0.9980236434400817,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 871.915,
+              "cy": 463.58,
+              "rx": 41.1804,
+              "ry": 66.42
+            },
+            "evidence": {
+              "rubber": 0.8796296296296297,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9893137476460873,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 219.42574000000002,
+            "y": 538.706074,
+            "radius": 59.778000000000006,
+            "half_width": 19.979136,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 616.4257399999999,
+            "y": 465.4192857968655,
+            "radius": 59.778000000000006,
+            "half_width": 13.177728,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            474.915,
+            603.0
+          ],
+          [
+            871.915,
+            529.7132117968655
+          ],
+          [
+            616.4257399999999,
+            465.4192857968655
+          ],
+          [
+            219.42574000000002,
+            538.706074
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            367.725,
+            622.7874328148463
+          ],
+          [
+            917.675,
+            509.92577898201915
+          ],
+          [
+            723.61574,
+            445.63185298201915
+          ],
+          [
+            112.23574000000002,
+            558.4935068148462
+          ]
+        ],
+        "ground_y": 603.0,
+        "ground_anchor": [
+          673.415,
+          603.0
+        ],
+        "confidence": 1.010113414011241,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.3116531165311653,
+          "wheel_ellipse_ratio": 0.78,
+          "side_on_score": 0.23389511137162955,
+          "perspective_score": 0.9983949198905824,
+          "overhang_asymmetry": 0.3523746776084408,
+          "opposite_track_shift": [
+            -255.48926,
+            -64.293926
+          ],
+          "contact_slope": -0.18460148161998619
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          103.66959349593489,
+          262.0773983739838,
+          920.3304065040651,
+          615.3573983739839
+        ],
+        "contacts": [
+          {
+            "x": 476.0161821138211,
+            "y": 614.4000000000001,
+            "radius": 63.59040000000001,
+            "half_width": 19.127992320000004,
+            "confidence": 1.0222031845824004,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 476.0161821138211,
+              "cy": 550.8096000000002,
+              "rx": 59.774976,
+              "ry": 63.59040000000001
+            },
+            "evidence": {
+              "rubber": 0.9490740740740741,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9978238299073778,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 856.1033365853658,
+            "y": 544.2353481398284,
+            "radius": 63.59040000000001,
+            "half_width": 12.61633536,
+            "confidence": 0.9980236434400817,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 856.1033365853658,
+              "cy": 480.91951869918705,
+              "rx": 39.426048,
+              "ry": 63.59040000000001
+            },
+            "evidence": {
+              "rubber": 0.8796296296296297,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9893137476460873,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 231.41118001951216,
+            "y": 552.8450997905692,
+            "radius": 57.23136000000001,
+            "half_width": 19.127992320000004,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 611.4983344910568,
+            "y": 482.68044793039746,
+            "radius": 57.23136000000001,
+            "half_width": 12.61633536,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            476.0161821138211,
+            614.4000000000001
+          ],
+          [
+            856.1033365853658,
+            544.2353481398284
+          ],
+          [
+            611.4983344910568,
+            482.68044793039746
+          ],
+          [
+            231.41118001951216,
+            552.8450997905692
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            373.39265040650406,
+            633.3444560022464
+          ],
+          [
+            899.9138861788617,
+            525.290892137582
+          ],
+          [
+            714.1218661983739,
+            463.7359919281511
+          ],
+          [
+            128.78764831219507,
+            571.7895557928155
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          666.0597593495935,
+          614.4000000000001
+        ],
+        "confidence": 1.010113414011241,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.3116531165311653,
+          "wheel_ellipse_ratio": 0.78,
+          "side_on_score": 0.23389511137162955,
+          "perspective_score": 0.9983949198905824,
+          "overhang_asymmetry": 0.3523746776084408,
+          "opposite_track_shift": [
+            -244.605002094309,
+            -61.5549002094309
+          ],
+          "contact_slope": -0.18460148161998619
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.95739837398374,
+        "translation": [
+          21.333333333333258,
+          37.08878048780491
+        ],
+        "matrix": [
+          [
+            0.9573983550071716,
+            0.0,
+            21.33333396911621
+          ],
+          [
+            0.0,
+            0.9573983550071716,
+            37.08877944946289
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.0013380419986788183,
+        "geometry_seconds": 0.11764916699030437,
+        "placement_seconds": 0.014856791007332504,
+        "shadow_and_compositing_seconds": 0.04033608399913646,
+        "processing_seconds": 0.18342491702060215
+      }
+    },
+    {
+      "image": "frontRight.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1024,
+        768
+      ],
+      "geometry": {
+        "bbox": [
+          87,
+          238,
+          939,
+          604
+        ],
+        "contacts": [
+          {
+            "x": 148.89443366040683,
+            "y": 528.0,
+            "radius": 65.59503393956234,
+            "half_width": 13.01405473360917,
+            "confidence": 0.9984549258744317,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 148.89443366040683,
+              "cy": 461.82184124996786,
+              "rx": 40.66892104252865,
+              "ry": 65.59503393956234
+            },
+            "evidence": {
+              "rubber": 0.875,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9998304919140709,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 551.19,
+            "y": 603.0,
+            "radius": 65.88,
+            "half_width": 19.816703999999998,
+            "confidence": 1.0249107192583202,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 551.19,
+              "cy": 537.12,
+              "rx": 61.92719999999999,
+              "ry": 65.88
+            },
+            "evidence": {
+              "rubber": 0.9583333333333334,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9967132721376241,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 407.85312793521035,
+            "y": 463.67413057251963,
+            "radius": 59.03553054560611,
+            "half_width": 13.01405473360917,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 810.1486942748036,
+            "y": 538.6741305725196,
+            "radius": 59.291999999999994,
+            "half_width": 19.816703999999998,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            148.89443366040683,
+            528.0
+          ],
+          [
+            551.19,
+            603.0
+          ],
+          [
+            810.1486942748036,
+            538.6741305725196
+          ],
+          [
+            407.85312793521035,
+            463.67413057251963
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            108.3,
+            507.75
+          ],
+          [
+            659.8098029116902,
+            623.25
+          ],
+          [
+            917.7,
+            558.9241305725196
+          ],
+          [
+            299.2333250235202,
+            443.42413057251963
+          ]
+        ],
+        "ground_y": 603.0,
+        "ground_anchor": [
+          350.0422168302034,
+          603.0
+        ],
+        "confidence": 1.0116828225663759,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.3278688524590163,
+          "wheel_ellipse_ratio": 0.78,
+          "side_on_score": 0.23333333333333336,
+          "perspective_score": 1.0,
+          "overhang_asymmetry": -0.35757897580061243,
+          "opposite_track_shift": [
+            258.9586942748035,
+            -64.32586942748036
+          ],
+          "contact_slope": 0.18643009338236058
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          100.80524590163934,
+          262.0852459016394,
+          923.1947540983607,
+          615.3652459016394
+        ],
+        "contacts": [
+          {
+            "x": 160.5485943266353,
+            "y": 542.0065573770493,
+            "radius": 63.315337678056245,
+            "half_width": 12.56176299532636,
+            "confidence": 0.9984549258744317,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 160.5485943266353,
+              "cy": 478.1283608655428,
+              "rx": 39.255509360394875,
+              "ry": 63.315337678056245
+            },
+            "evidence": {
+              "rubber": 0.875,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9998304919140709,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 548.8627409836066,
+            "y": 614.4000000000001,
+            "radius": 63.5904,
+            "half_width": 19.12799232,
+            "confidence": 1.0249107192583202,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 548.8627409836066,
+              "cy": 550.8096,
+              "rx": 59.774975999999995,
+              "ry": 63.5904
+            },
+            "evidence": {
+              "rubber": 0.9583333333333334,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9967132721376241,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 410.50741266926536,
+            "y": 479.9162755427862,
+            "radius": 56.98380391025062,
+            "half_width": 12.56176299532636,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 798.8215593262366,
+            "y": 552.3097181657371,
+            "radius": 57.231359999999995,
+            "half_width": 19.12799232,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            160.5485943266353,
+            542.0065573770493
+          ],
+          [
+            548.8627409836066,
+            614.4000000000001
+          ],
+          [
+            798.8215593262366,
+            552.3097181657371
+          ],
+          [
+            410.50741266926536,
+            479.9162755427862
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            121.36498360655737,
+            522.4603278688526
+          ],
+          [
+            653.7075605809889,
+            633.9462295081968
+          ],
+          [
+            902.6350163934427,
+            571.8559476739338
+          ],
+          [
+            305.6625930718831,
+            460.3700460345895
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          354.705667655121,
+          614.4000000000001
+        ],
+        "confidence": 1.0116828225663759,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.3278688524590163,
+          "wheel_ellipse_ratio": 0.78,
+          "side_on_score": 0.23333333333333336,
+          "perspective_score": 1.0,
+          "overhang_asymmetry": -0.35757897580061243,
+          "opposite_track_shift": [
+            249.95881834263002,
+            -62.09028183426301
+          ],
+          "contact_slope": 0.18643009338236058
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.9652459016393443,
+        "translation": [
+          16.82885245901639,
+          32.35672131147544
+        ],
+        "matrix": [
+          [
+            0.9652459025382996,
+            0.0,
+            16.8288516998291
+          ],
+          [
+            0.0,
+            0.9652459025382996,
+            32.356719970703125
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.0016791250091046095,
+        "geometry_seconds": 0.08021037501748651,
+        "placement_seconds": 0.015065999992657453,
+        "shadow_and_compositing_seconds": 0.04162091700709425,
+        "processing_seconds": 0.1462356669944711
+      }
+    },
+    {
+      "image": "left.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1094,
+        808
+      ],
+      "geometry": {
+        "bbox": [
+          37,
+          275,
+          1055,
+          597
+        ],
+        "contacts": [
+          {
+            "x": 183.73,
+            "y": 591.0,
+            "radius": 77.28,
+            "half_width": 23.245824,
+            "confidence": 1.0464390132197856,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 183.73,
+              "cy": 513.72,
+              "rx": 72.6432,
+              "ry": 77.28
+            },
+            "evidence": {
+              "rubber": 0.9444444444444444,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9965947434676666,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 838.5624528166118,
+            "y": 596.0,
+            "radius": 74.7928587762933,
+            "half_width": 22.9763662160773,
+            "confidence": 1.0420427580099763,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 838.5624528166118,
+              "cy": 522.1603886052181,
+              "rx": 71.80114442524156,
+              "ry": 74.7928587762933
+            },
+            "evidence": {
+              "rubber": 0.9305555555555556,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9968042618791236,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 243.69716234442467,
+            "y": 551.1932837655576,
+            "radius": 69.552,
+            "half_width": 23.245824,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 898.5296151610364,
+            "y": 556.1932837655576,
+            "radius": 67.31357289866398,
+            "half_width": 22.9763662160773,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            183.73,
+            591.0
+          ],
+          [
+            838.5624528166118,
+            596.0
+          ],
+          [
+            898.5296151610364,
+            556.1932837655576
+          ],
+          [
+            243.69716234442467,
+            551.1932837655576
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            62.45,
+            589.65
+          ],
+          [
+            1015.367215077097,
+            597.35
+          ],
+          [
+            1029.55,
+            557.5432837655576
+          ],
+          [
+            66.89240008393949,
+            549.8432837655575
+          ]
+        ],
+        "ground_y": 596.0,
+        "ground_anchor": [
+          511.1462264083059,
+          596.0
+        ],
+        "confidence": 1.0442408856148808,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 3.1614906832298137,
+          "wheel_ellipse_ratio": 0.95,
+          "side_on_score": 0.8270496764284907,
+          "perspective_score": 0.19635613079379402,
+          "overhang_asymmetry": -0.06930216380957435,
+          "opposite_track_shift": [
+            59.967162344424686,
+            -39.80671623444247
+          ],
+          "contact_slope": 0.007635540936454272
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          61.43999999999999,
+          330.2550884086445,
+          962.56,
+          615.2851866404716
+        ],
+        "contacts": [
+          {
+            "x": 191.32343575638504,
+            "y": 609.9740667976425,
+            "radius": 68.40722357563851,
+            "half_width": 20.57689285155206,
+            "confidence": 1.0464390132197856,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 191.32343575638504,
+              "cy": 541.5668432220041,
+              "rx": 64.30279016110019,
+              "ry": 68.40722357563851
+            },
+            "evidence": {
+              "rubber": 0.9444444444444444,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9965947434676666,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 770.9723747368421,
+            "y": 614.4000000000001,
+            "radius": 66.20563939144736,
+            "half_width": 20.33837242105263,
+            "confidence": 1.0420427580099763,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 770.9723747368421,
+              "cy": 549.0381624557311,
+              "rx": 63.55741381578946,
+              "ry": 66.20563939144736
+            },
+            "evidence": {
+              "rubber": 0.9305555555555556,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9968042618791236,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 244.40556673065612,
+            "y": 574.7376933858736,
+            "radius": 61.56650121807466,
+            "half_width": 20.57689285155206,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 824.054505711113,
+            "y": 579.1636265882312,
+            "radius": 59.58507545230263,
+            "half_width": 20.33837242105263,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            191.32343575638504,
+            609.9740667976425
+          ],
+          [
+            770.9723747368421,
+            614.4000000000001
+          ],
+          [
+            824.054505711113,
+            579.1636265882312
+          ],
+          [
+            244.40556673065612,
+            574.7376933858736
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            83.96799999999999,
+            608.7790648330059
+          ],
+          [
+            927.4775882615654,
+            615.5950019646367
+          ],
+          [
+            940.0319999999999,
+            580.3586285528677
+          ],
+          [
+            87.90035320593276,
+            573.5426914212371
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          481.14790524661356,
+          614.4000000000001
+        ],
+        "confidence": 1.0442408856148808,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 3.1614906832298137,
+          "wheel_ellipse_ratio": 0.95,
+          "side_on_score": 0.8270496764284907,
+          "perspective_score": 0.19635613079379402,
+          "overhang_asymmetry": -0.06930216380957435,
+          "opposite_track_shift": [
+            53.082130974271095,
+            -35.23637341176895
+          ],
+          "contact_slope": 0.007635540936454272
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.8851866404715127,
+        "translation": [
+          28.68809430255402,
+          86.8287622789785
+        ],
+        "matrix": [
+          [
+            0.8851866126060486,
+            0.0,
+            28.688095092773438
+          ],
+          [
+            0.0,
+            0.8851866126060486,
+            86.82876586914062
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.001380166009766981,
+        "geometry_seconds": 0.05289204200380482,
+        "placement_seconds": 0.014997374993981794,
+        "shadow_and_compositing_seconds": 0.037946084019495174,
+        "processing_seconds": 0.1186746250023134
+      }
+    },
+    {
+      "image": "rearLeft.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1024,
+        768
+      ],
+      "geometry": {
+        "bbox": [
+          88,
+          241,
+          938,
+          607
+        ],
+        "contacts": [
+          {
+            "x": 128.19,
+            "y": 530.0071506049115,
+            "radius": 54.9,
+            "half_width": 10.892159999999999,
+            "confidence": 0.9992339908967635,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 128.19,
+              "cy": 476.09731658993405,
+              "rx": 34.038,
+              "ry": 54.9
+            },
+            "evidence": {
+              "rubber": 0.9444444444444444,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9891816029327881,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 481.48174245733964,
+            "y": 604.5332226855917,
+            "radius": 86.70939520785682,
+            "half_width": 17.203144009238795,
+            "confidence": 1.0508418841813596,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 481.48174245733964,
+              "cy": 514.141447368421,
+              "rx": 53.75982502887123,
+              "ry": 86.70939520785682
+            },
+            "evidence": {
+              "rubber": 0.9583333333333334,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9964139891943175,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 465.3054676367208,
+            "y": 457.8656038412395,
+            "radius": 49.41,
+            "half_width": 10.892159999999999,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 818.5972100940604,
+            "y": 532.3916759219196,
+            "radius": 78.03845568707114,
+            "half_width": 17.203144009238795,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            128.19,
+            530.0071506049115
+          ],
+          [
+            481.48174245733964,
+            604.5332226855917
+          ],
+          [
+            818.5972100940604,
+            532.3916759219196
+          ],
+          [
+            465.3054676367208,
+            457.8656038412395
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            109.25,
+            509.8851111431279
+          ],
+          [
+            576.8705129208213,
+            624.6552621473753
+          ],
+          [
+            913.9859805575421,
+            552.5137153837032
+          ],
+          [
+            369.9166971732391,
+            437.74356437945585
+          ]
+        ],
+        "ground_y": 604.5332226855917,
+        "ground_anchor": [
+          304.8358712286698,
+          604.5332226855917
+        ],
+        "confidence": 1.0250379375390615,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.3224043715846996,
+          "wheel_ellipse_ratio": 0.62,
+          "side_on_score": 0.1,
+          "perspective_score": 1.0,
+          "overhang_asymmetry": -0.46659580295739905,
+          "opposite_track_shift": [
+            337.1154676367208,
+            -72.14154676367208
+          ],
+          "contact_slope": 0.21094767616788904
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          101.77049180327869,
+          263.5010466929896,
+          922.2295081967213,
+          616.7810466929897
+        ],
+        "contacts": [
+          {
+            "x": 140.56372459016393,
+            "y": 542.4640143588451,
+            "radius": 52.992000000000004,
+            "half_width": 10.513612799999999,
+            "confidence": 0.9992339908967635,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 140.56372459016393,
+              "cy": 490.4277680178309,
+              "rx": 32.855039999999995,
+              "ry": 52.992000000000004
+            },
+            "evidence": {
+              "rubber": 0.9444444444444444,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9891816029327881,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 481.57713108013377,
+            "y": 614.4000000000001,
+            "radius": 83.69588835801,
+            "half_width": 16.605264250229187,
+            "confidence": 1.0508418841813596,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 481.57713108013377,
+              "cy": 527.1497093331966,
+              "rx": 51.8914507819662,
+              "ry": 83.69588835801
+            },
+            "evidence": {
+              "rubber": 0.9583333333333334,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9964139891943175,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 465.9630481057397,
+            "y": 472.82968200728766,
+            "radius": 47.6928,
+            "half_width": 10.513612799999999,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 806.9764545957095,
+            "y": 544.7656676484426,
+            "radius": 75.326299522209,
+            "half_width": 16.605264250229187,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            140.56372459016393,
+            542.4640143588451
+          ],
+          [
+            481.57713108013377,
+            614.4000000000001
+          ],
+          [
+            806.9764545957095,
+            544.7656676484426
+          ],
+          [
+            465.9630481057397,
+            472.82968200728766
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            122.28196721311475,
+            523.0412982357334
+          ],
+          [
+            573.6507508324255,
+            633.8227161231118
+          ],
+          [
+            899.0500743480013,
+            564.1883837715543
+          ],
+          [
+            373.88942835344784,
+            453.40696588417586
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          311.07042783514885,
+          614.4000000000001
+        ],
+        "confidence": 1.0250379375390615,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.3224043715846996,
+          "wheel_ellipse_ratio": 0.62,
+          "side_on_score": 0.1,
+          "perspective_score": 1.0,
+          "overhang_asymmetry": -0.46659580295739905,
+          "opposite_track_shift": [
+            325.39932351557576,
+            -69.63433235155757
+          ],
+          "contact_slope": 0.21094767616788904
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.9652459016393443,
+        "translation": [
+          16.82885245901639,
+          30.876784397907613
+        ],
+        "matrix": [
+          [
+            0.9652459025382996,
+            0.0,
+            16.8288516998291
+          ],
+          [
+            0.0,
+            0.9652459025382996,
+            30.876785278320312
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.0016432910051662475,
+        "geometry_seconds": 0.05702220799867064,
+        "placement_seconds": 0.015618500008713454,
+        "shadow_and_compositing_seconds": 0.04243820899864659,
+        "processing_seconds": 0.1250809589982964
+      }
+    },
+    {
+      "image": "rearRight.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1024,
+        768
+      ],
+      "geometry": {
+        "bbox": [
+          86,
+          236,
+          938,
+          612
+        ],
+        "contacts": [
+          {
+            "x": 545.16,
+            "y": 610.7128982804059,
+            "radius": 78.96,
+            "half_width": 19.203072,
+            "confidence": 0.9942080266263158,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 545.16,
+              "cy": 532.0081026825925,
+              "rx": 60.0096,
+              "ry": 78.96
+            },
+            "evidence": {
+              "rubber": 0.8055555555555556,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9910010819501651,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 897.8124527138158,
+            "y": 520.9996864835404,
+            "radius": 56.61405492842825,
+            "half_width": 8.69591883700658,
+            "confidence": 0.946341237101243,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 897.8124527138158,
+              "cy": 464.82184124996786,
+              "rx": 27.17474636564556,
+              "ry": 56.61405492842825
+            },
+            "evidence": {
+              "rubber": 0.8287037037037037,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.996866614381777,
+              "protrusion": 0.9052983623351522
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 216.94304078245784,
+            "y": 538.4112023586516,
+            "radius": 71.064,
+            "half_width": 19.203072,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 569.5954934962737,
+            "y": 448.6979905617861,
+            "radius": 50.95264943558543,
+            "half_width": 8.69591883700658,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            545.16,
+            610.7128982804059
+          ],
+          [
+            897.8124527138158,
+            520.9996864835404
+          ],
+          [
+            569.5954934962737,
+            448.6979905617861
+          ],
+          [
+            216.94304078245784,
+            538.4112023586516
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            449.94383776726966,
+            634.9354654655596
+          ],
+          [
+            916.7,
+            496.77711929838665
+          ],
+          [
+            664.811655729004,
+            424.4754233766324
+          ],
+          [
+            121.72687854972756,
+            562.6337695438053
+          ]
+        ],
+        "ground_y": 610.7128982804059,
+        "ground_anchor": [
+          721.4862263569079,
+          610.7128982804059
+        ],
+        "confidence": 0.9702746318637794,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.265957446808511,
+          "wheel_ellipse_ratio": 0.62,
+          "side_on_score": 0.1,
+          "perspective_score": 1.0,
+          "overhang_asymmetry": 0.45321314445946165,
+          "opposite_track_shift": [
+            -328.2169592175421,
+            -72.3016959217542
+          ],
+          "contact_slope": -0.2543955418613506
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          111.74127659574464,
+          262.32932791355915,
+          912.2587234042553,
+          615.6093279135591
+        ],
+        "contacts": [
+          {
+            "x": 543.1562893617022,
+            "y": 614.4000000000001,
+            "radius": 74.1888,
+            "half_width": 18.04271616,
+            "confidence": 0.9942080266263158,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 543.1562893617022,
+              "cy": 540.4509835404376,
+              "rx": 56.38348800000001,
+              "ry": 74.1888
+            },
+            "evidence": {
+              "rubber": 0.8055555555555556,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9910010819501651,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 874.4995300391938,
+            "y": 530.1077567457537,
+            "radius": 53.19312054551898,
+            "half_width": 8.170463315791716,
+            "confidence": 0.946341237101243,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 874.4995300391938,
+              "cy": 477.3244876922524,
+              "rx": 25.53269786184911,
+              "ry": 53.19312054551898
+            },
+            "evidence": {
+              "rubber": 0.8287037037037037,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.996866614381777,
+              "protrusion": 0.9052983623351522
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 234.77201448836888,
+            "y": 546.4671725126667,
+            "radius": 66.76992,
+            "half_width": 18.04271616,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 566.1152551658606,
+            "y": 462.1749292584203,
+            "radius": 47.87380849096708,
+            "half_width": 8.170463315791716,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            543.1562893617022,
+            614.4000000000001
+          ],
+          [
+            874.4995300391938,
+            530.1077567457537
+          ],
+          [
+            566.1152551658606,
+            462.1749292584203
+          ],
+          [
+            234.77201448836888,
+            546.4671725126667
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            453.69361437877933,
+            637.1589056786466
+          ],
+          [
+            892.2457872340426,
+            507.34885106710715
+          ],
+          [
+            655.5779301487833,
+            439.41602357977376
+          ],
+          [
+            145.30933950544613,
+            569.2260781913133
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          708.8279097004479,
+          614.4000000000001
+        ],
+        "confidence": 0.9702746318637794,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 2.265957446808511,
+          "wheel_ellipse_ratio": 0.62,
+          "side_on_score": 0.1,
+          "perspective_score": 1.0,
+          "overhang_asymmetry": 0.45321314445946165,
+          "opposite_track_shift": [
+            -308.38427487333325,
+            -67.93282748733331
+          ],
+          "contact_slope": -0.2543955418613506
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.9395744680851065,
+        "translation": [
+          30.937872340425486,
+          40.589753445474
+        ],
+        "matrix": [
+          [
+            0.9395744800567627,
+            0.0,
+            30.9378719329834
+          ],
+          [
+            0.0,
+            0.9395744800567627,
+            40.589752197265625
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.0013080000062473118,
+        "geometry_seconds": 0.04406516600283794,
+        "placement_seconds": 0.014365083014126867,
+        "shadow_and_compositing_seconds": 0.040572208003140986,
+        "processing_seconds": 0.10838037499343045
+      }
+    },
+    {
+      "image": "right.png",
+      "model": "birefnet-general",
+      "mask_origin": "cached_segmentation_for_development",
+      "source_size": [
+        1072,
+        814
+      ],
+      "geometry": {
+        "bbox": [
+          15,
+          279,
+          1026,
+          597
+        ],
+        "contacts": [
+          {
+            "x": 198.87,
+            "y": 592.0,
+            "radius": 76.32,
+            "half_width": 22.957055999999998,
+            "confidence": 1.050185183689796,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 198.87,
+              "cy": 515.6800000000001,
+              "rx": 71.7408,
+              "ry": 76.32
+            },
+            "evidence": {
+              "rubber": 0.9537037037037037,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9999999934983077,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 870.13,
+            "y": 596.0,
+            "radius": 76.32,
+            "half_width": 22.957055999999998,
+            "confidence": 1.0323148828883435,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 870.13,
+              "cy": 519.6800000000001,
+              "rx": 71.7408,
+              "ry": 76.32
+            },
+            "evidence": {
+              "rubber": 0.8981481481481481,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.999597719482331,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 190.54,
+            "y": 557.777,
+            "radius": 68.688,
+            "half_width": 22.957055999999998,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 861.8,
+            "y": 561.777,
+            "radius": 68.688,
+            "half_width": 22.957055999999998,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            198.87,
+            592.0
+          ],
+          [
+            870.13,
+            596.0
+          ],
+          [
+            861.8,
+            561.777
+          ],
+          [
+            190.54,
+            557.777
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            40.275000000000006,
+            590.92
+          ],
+          [
+            1000.725,
+            597.08
+          ],
+          [
+            1000.725,
+            562.8570000000001
+          ],
+          [
+            40.275000000000006,
+            556.697
+          ]
+        ],
+        "ground_y": 596.0,
+        "ground_anchor": [
+          534.5,
+          596.0
+        ],
+        "confidence": 1.0412500332890697,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 3.1792452830188678,
+          "wheel_ellipse_ratio": 0.94,
+          "side_on_score": 0.9015611605670953,
+          "perspective_score": 0.027464556544675237,
+          "overhang_asymmetry": 0.027695351137487636,
+          "opposite_track_shift": [
+            -8.33,
+            -34.223
+          ],
+          "contact_slope": 0.005958942883532462
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "normalized_geometry": {
+        "bbox": [
+          61.440000000000005,
+          331.8529772502474,
+          962.5600000000001,
+          615.2913155291792
+        ],
+        "contacts": [
+          {
+            "x": 225.3261863501484,
+            "y": 610.834737883284,
+            "radius": 68.02520118694362,
+            "half_width": 20.46198051703264,
+            "confidence": 1.050185183689796,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 225.3261863501484,
+              "cy": 542.8095366963405,
+              "rx": 63.943689115727,
+              "ry": 68.02520118694362
+            },
+            "evidence": {
+              "rubber": 0.9537037037037037,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.9999999934983077,
+              "protrusion": 1.0
+            }
+          },
+          {
+            "x": 823.6306484668645,
+            "y": 614.4000000000001,
+            "radius": 68.02520118694362,
+            "half_width": 20.46198051703264,
+            "confidence": 1.0323148828883435,
+            "source": "rubber_rim_ellipse",
+            "ellipse": {
+              "cx": 823.6306484668645,
+              "cy": 546.3747988130566,
+              "rx": 63.943689115727,
+              "ry": 68.02520118694362
+            },
+            "evidence": {
+              "rubber": 0.8981481481481481,
+              "rim_detail": 1.0,
+              "contact_agreement": 0.999597719482331,
+              "protrusion": 1.0
+            }
+          }
+        ],
+        "inferred_contacts": [
+          {
+            "x": 217.90152799208704,
+            "y": 580.3312465281901,
+            "radius": 61.22268106824926,
+            "half_width": 20.46198051703264,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          },
+          {
+            "x": 816.2059901088031,
+            "y": 583.8965086449061,
+            "radius": 61.22268106824926,
+            "half_width": 20.46198051703264,
+            "confidence": 0.34,
+            "source": "inferred_opposite_track"
+          }
+        ],
+        "footprint": [
+          [
+            225.3261863501484,
+            610.834737883284
+          ],
+          [
+            823.6306484668645,
+            614.4000000000001
+          ],
+          [
+            816.2059901088031,
+            583.8965086449061
+          ],
+          [
+            217.90152799208704,
+            580.3312465281901
+          ]
+        ],
+        "chassis_footprint": [
+          [
+            83.96800000000002,
+            609.8721171117706
+          ],
+          [
+            940.032,
+            615.3626207715135
+          ],
+          [
+            940.032,
+            584.8591294164196
+          ],
+          [
+            83.96800000000002,
+            579.3686257566767
+          ]
+        ],
+        "ground_y": 614.4000000000001,
+        "ground_anchor": [
+          524.4784174085064,
+          614.4000000000001
+        ],
+        "confidence": 1.0412500332890697,
+        "view_cues": {
+          "support_mode": "visible_wheel_pair",
+          "detected_wheel_count": 2,
+          "aspect_ratio": 3.1792452830188678,
+          "wheel_ellipse_ratio": 0.94,
+          "side_on_score": 0.9015611605670953,
+          "perspective_score": 0.027464556544675237,
+          "overhang_asymmetry": 0.027695351137487636,
+          "opposite_track_shift": [
+            -7.4246583580613255,
+            -30.503491355093967
+          ],
+          "contact_slope": 0.005958942883532462
+        },
+        "limitations": [
+          "Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
+          "Occluded tire contacts and opposite track are uncertain estimates."
+        ]
+      },
+      "placement": {
+        "scale": 0.8913155291790307,
+        "translation": [
+          48.07026706231454,
+          83.17594460929786
+        ],
+        "matrix": [
+          [
+            0.8913155198097229,
+            0.0,
+            48.07026672363281
+          ],
+          [
+            0.0,
+            0.8913155198097229,
+            83.17594146728516
+          ]
+        ],
+        "canvas": [
+          1024,
+          768
+        ],
+        "width_cap_fraction": 0.88,
+        "height_cap_fraction": 0.46,
+        "ground_fraction": 0.8,
+        "rule": "Uniform contain transform; center vehicle bounds; align nearest estimated tire contact."
+      },
+      "timings": {
+        "mask_refinement_seconds": 0.0018272499728482217,
+        "geometry_seconds": 0.05109741701744497,
+        "placement_seconds": 0.014865832985378802,
+        "shadow_and_compositing_seconds": 0.03763462501228787,
+        "processing_seconds": 0.1151200830063317
+      }
+    }
+  ]
+}

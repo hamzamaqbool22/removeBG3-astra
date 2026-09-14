@@ -1,0 +1,64 @@
+{
+  "model": "isnet-general-use",
+  "note": "Approximate vehicle alpha extracted from reference RGBA, downsampled to reference size. Black vehicle edges and shadow are ambiguous. These scores do not measure final shadow realism.",
+  "mean_iou": 0.9862870382478217,
+  "mean_boundary_f1_2px": 0.932659783264858,
+  "images": [
+    {
+      "image": "back.png",
+      "mask_iou": 0.9907500184577739,
+      "boundary_f1_2px": 0.9243955478537762,
+      "missing_interior_fraction": 0.0008103284020104905,
+      "excess_exterior_pixels": 138
+    },
+    {
+      "image": "front.png",
+      "mask_iou": 0.977124456339913,
+      "boundary_f1_2px": 0.9035198573435632,
+      "missing_interior_fraction": 0.011233628974263984,
+      "excess_exterior_pixels": 65
+    },
+    {
+      "image": "frontLeft.png",
+      "mask_iou": 0.9877806940799067,
+      "boundary_f1_2px": 0.9381859643501402,
+      "missing_interior_fraction": 0.002215228550476656,
+      "excess_exterior_pixels": 0
+    },
+    {
+      "image": "frontRight.png",
+      "mask_iou": 0.985904071010454,
+      "boundary_f1_2px": 0.9441138238380993,
+      "missing_interior_fraction": 0.0007457005701502276,
+      "excess_exterior_pixels": 143
+    },
+    {
+      "image": "left.png",
+      "mask_iou": 0.9855425776488559,
+      "boundary_f1_2px": 0.9109006341601275,
+      "missing_interior_fraction": 0.0013098005828612593,
+      "excess_exterior_pixels": 14
+    },
+    {
+      "image": "rearLeft.png",
+      "mask_iou": 0.9895573611803702,
+      "boundary_f1_2px": 0.9629239215310474,
+      "missing_interior_fraction": 0.001723076923076923,
+      "excess_exterior_pixels": 10
+    },
+    {
+      "image": "rearRight.png",
+      "mask_iou": 0.9814214180038694,
+      "boundary_f1_2px": 0.9154759991097043,
+      "missing_interior_fraction": 0.007783493625587117,
+      "excess_exterior_pixels": 0
+    },
+    {
+      "image": "right.png",
+      "mask_iou": 0.9922157092614302,
+      "boundary_f1_2px": 0.9617625179324059,
+      "missing_interior_fraction": 1.6542323534763693e-05,
+      "excess_exterior_pixels": 9
+    }
+  ]
+}

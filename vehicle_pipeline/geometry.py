@@ -281,34 +281,3 @@ def estimate_geometry(rgb: np.ndarray, alpha: np.ndarray) -> dict[str, Any]:
             "limitations": ["Support geometry is a monocular heuristic, not calibrated 3D reconstruction.",
                             "Occluded tire contacts and opposite track are uncertain estimates."]}
 
-
-def draw_geometry_overlay(rgb: np.ndarray, alpha: np.ndarray, geometry: dict[str, Any]) -> np.ndarray:
-    """Render measured supports, wheel hypotheses and inferred ground footprint."""
-    canvas = (rgb.astype(float) * .65 + 255 * .35).astype(np.uint8)
-    h, w = canvas.shape[:2]
-    thickness = max(1, round(w / 500))
-    contour_mask = ((alpha >= 128) * 255).astype(np.uint8)
-    contours, _ = cv2.findContours(contour_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(canvas, contours, -1, (25, 100, 220), thickness)
-    polygon = np.round(geometry["footprint"]).astype(np.int32)
-    layer = canvas.copy()
-    cv2.fillPoly(layer, [polygon], (30, 180, 210))
-    canvas = cv2.addWeighted(canvas, .74, layer, .26, 0)
-    cv2.polylines(canvas, [polygon], True, (10, 145, 180), thickness)
-    for contact in geometry["inferred_contacts"]:
-        center = tuple(np.round([contact["x"], contact["y"]]).astype(int))
-        cv2.drawMarker(canvas, center, (220, 125, 15), cv2.MARKER_TILTED_CROSS, 12, thickness)
-    for index, contact in enumerate(geometry["contacts"]):
-        ellipse = contact.get("ellipse")
-        if ellipse:
-            cv2.ellipse(canvas, (round(ellipse["cx"]), round(ellipse["cy"])),
-                        (round(ellipse["rx"]), round(ellipse["ry"])), 0, 0, 360,
-                        (20, 160, 65), thickness)
-        center = tuple(np.round([contact["x"], contact["y"]]).astype(int))
-        cv2.circle(canvas, center, max(4, 2 * thickness), (235, 45, 45), -1)
-        cv2.putText(canvas, f"C{index + 1} {contact['confidence']:.2f}",
-                    (max(0, center[0] - 30), min(h - 10, center[1] + 24)),
-                    cv2.FONT_HERSHEY_SIMPLEX, max(.35, w / 2000), (155, 20, 20), thickness)
-    text = geometry["view_cues"]["support_mode"] + f" | confidence {geometry['confidence']:.2f}"
-    cv2.putText(canvas, text, (12, 27), cv2.FONT_HERSHEY_SIMPLEX, max(.4, w / 1700), (20, 35, 50), thickness)
-    return canvas

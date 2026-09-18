@@ -29,6 +29,78 @@ def _ellipse(shape, x, y, sx, sy, strength):
     return (strength*np.exp(-.5*(((xx-x)/max(sx,.5))**2 + ((yy-y)/max(sy,.5))**2))).astype(np.float32)
 
 
+OBLIQUE_PARAMETERS = {
+    'side_plane_lift': .217,
+    'end_center_fraction': .361,
+    'end_width_fraction': .488,
+    'end_center_drop': .122,
+    'end_ground_spill': .055,
+    'end_tilt_fraction': .035,
+    'core_opacity': .897,
+    'core_blur_x': .209,
+    'core_blur_y': .076,
+    'ambient_opacity': .045,
+}
+
+
+def _oblique_support(shape, geometry, params):
+    """Separate the longitudinal chassis and the visible end's ground lobe.
+
+    Wheel contacts lie along the *near* side of the car. The sill's shadow
+    recedes inside that line, while the bumper occludes a broader end footprint.
+    A smooth lobe avoids reproducing exhaust/hidden-wheel bumps in the shadow.
+    The same rule handles either end and either direction without view labels.
+    """
+    contacts = geometry['contacts']
+    left, right = contacts[0], contacts[-1]
+    x0, y0, x1, y1 = geometry['bbox']
+    left_gap, right_gap = left['x'] - x0, x1 - right['x']
+    end_left = left_gap > right_gap
+    near = left if end_left else right
+    overhang = left_gap if end_left else right_gap
+    direction = -1 if end_left else 1
+    radius = near['radius']
+    profile = np.asarray(geometry['lower_body_profile'], np.float32)
+    xs = np.arange(shape[1], dtype=np.float32)
+    lower = np.interp(xs, profile[:, 0], profile[:, 1])
+    yy = np.arange(shape[0], dtype=np.float32)[:, None]
+
+    slope = (right['y'] - left['y']) / max(1, right['x'] - left['x'])
+    plane = left['y'] + slope * (xs - left['x'])
+    shift_x, shift_y = geometry['view_cues']['opposite_track_shift']
+    plane += shift_y * params['side_plane_lift']
+    top = lower - .18 * radius
+    band = ((yy >= top[None, :]) & (yy <= plane[None, :])).astype(np.float32)
+    extension = .18 * radius
+    band[:, (xs < left['x'] - extension) | (xs > right['x'] + extension)] = 0
+    # Taper rather than abruptly ending the occlusion at the axles.
+    taper = np.clip(np.minimum(xs-left['x']+extension,
+                               right['x']+extension-xs) / max(1, .4*radius), 0, 1)
+    band *= taper[None, :]
+
+    # Estimate bumper clearance from a robust lower-body statistic, excluding
+    # the near tire. Individual exhaust tips/far tires cannot create lobes.
+    distance_into_end = direction * (profile[:, 0] - near['x'])
+    valid = (distance_into_end > .30*overhang) & (distance_into_end < .84*overhang)
+    bumper_y = float(np.median(profile[valid, 1])) if np.any(valid) else near['y']-.6*radius
+    center_x = near['x'] + direction * overhang * params['end_center_fraction']
+    center_y = bumper_y + radius * params['end_center_drop']
+    rx = max(radius, overhang * params['end_width_fraction'])
+    # Anchor the lobe's ground extent to the actual tire contact. An ellipse
+    # sized only from a detected wheel radius floats upward when the far-side
+    # wheel is underestimated or the bumper has unusually high clearance.
+    ry = float(np.clip(near['y'] + radius*params['end_ground_spill'] - center_y,
+                       radius*.30, radius*.95))
+    tilt = params['end_tilt_fraction'] * shift_y / (shift_x if abs(shift_x)>1 else direction)
+    u = (xs-center_x) / rx
+    v = (yy-center_y-tilt*(xs-center_x)[None, :]) / ry
+    distance = np.sqrt(u[None, :]**2 + v**2)
+    edge = np.clip((distance-.93)/.12, 0, 1)
+    end = (1-edge*edge*(3-2*edge)).astype(np.float32)
+    support = 1-(1-band)*(1-end)
+    return support, radius, end
+
+
 def render_shadows(shape: tuple[int,int], geometry: dict) -> dict[str,np.ndarray]:
     """Return independent opacity layers (float32 0..1), composited as light transmission.
 
@@ -95,6 +167,47 @@ def render_shadows(shape: tuple[int,int], geometry: dict) -> dict[str,np.ndarray
     support=1-(1-core*.68)*(1-apron)
     underbody=.86*_blur(support, radius*.13, radius*(.18 if end_on else .09))
     broad=.32*_blur(support, radius*.52, radius*(.48 if end_on else .24))
+    # Preserve the end-on rendering. Only a clear
+    # projected track separation activates the three-quarter correction.
+    oblique_weight = 0. if end_on else float(np.clip(
+        (geometry['view_cues']['perspective_score']-.15)/.55, 0, 1))
+    oblique_weight *= float(np.clip((abs(geometry['view_cues']['contact_slope'])-.035)/.06,0,1))
+    end_layer = np.zeros(shape, np.float32)
+    if oblique_weight > 0:
+        p = OBLIQUE_PARAMETERS
+        support_q, near_radius, end = _oblique_support(shape, geometry, p)
+        core_q = p['core_opacity'] * _blur(support_q, near_radius*p['core_blur_x'], near_radius*p['core_blur_y'])
+        broad_q = p['ambient_opacity'] * _blur(support_q, near_radius*.52, near_radius*.24)
+        underbody = underbody*(1-oblique_weight)+core_q*oblique_weight
+        broad = broad*(1-oblique_weight)+broad_q*oblique_weight
+        end_layer = p['core_opacity'] * _blur(end, near_radius*p['core_blur_x'], near_radius*p['core_blur_y']) * oblique_weight
+    # Profile views need a continuous chassis occlusion band. The generic
+    # apron rejects the sill as "too high" when clearance exceeds .45 radii,
+    # leaving only a weak rounded footprint between the wheels.
+    side_weight = 0. if end_on else float(np.clip(
+        (geometry['view_cues']['side_on_score'] - .55) / .20, 0, 1))
+    side_weight *= float(np.clip((.06 - abs(geometry['view_cues']['contact_slope'])) / .025, 0, 1))
+    if side_weight > 0 and len(profile):
+        xs = np.arange(shape[1], dtype=np.float32)
+        yy = np.arange(shape[0], dtype=np.float32)[:, None]
+        lower = np.interp(xs, profile[:, 0], profile[:, 1])
+        left, right = contacts[0], contacts[-1]
+        plane = left['y'] + (right['y']-left['y']) * (xs-left['x']) / max(1, right['x']-left['x'])
+        # Recede slightly behind the tire contact line; fill bumper overhangs
+        # as well as the space between axles, with a rounded lateral taper.
+        end_rounding = 1 - np.clip(np.minimum(xs-x0, x1-xs) / max(1, 1.1*radius), 0, 1)
+        bottom = plane - .08 * radius - .38*radius*end_rounding**2
+        outside = (xs < left['x']) | (xs > right['x'])
+        bottom[outside] = np.minimum(bottom[outside], lower[outside] + .24*radius)
+        bottom = gaussian_filter1d(bottom, max(1, radius*.16))
+        top = np.minimum(lower - .16 * radius, bottom - .25 * radius)
+        band = ((yy >= top[None, :]) & (yy <= bottom[None, :])).astype(np.float32)
+        edge = np.clip(np.minimum(xs-x0, x1-xs) / max(1, .95*radius), 0, 1)
+        band *= (edge*edge*(3-2*edge))[None, :]
+        side_core = .92 * _blur(band, radius*.19, radius*.10)
+        side_ground = .18 * _blur(band, radius*.48, radius*.22)
+        underbody = underbody*(1-side_weight) + side_core*side_weight
+        broad = broad*(1-side_weight) + side_ground*side_weight
     tire=np.zeros(shape,np.float32)
     for c in contacts:
         r=c['radius']
@@ -102,7 +215,7 @@ def render_shadows(shape: tuple[int,int], geometry: dict) -> dict[str,np.ndarray
                        max(1.,r*.065),.86)
         tire=1-(1-tire)*(1-local)
     combined=1-(1-underbody)*(1-broad)*(1-tire)
-    return {'tire_contact':tire, 'underbody':underbody, 'ground':broad,
+    return {'tire_contact':tire, 'underbody':underbody, 'ground':broad, 'end_footprint':end_layer,
             'combined':np.clip(combined,0,.97).astype(np.float32)}
 
 

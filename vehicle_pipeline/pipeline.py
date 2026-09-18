@@ -1,94 +1,38 @@
-"""Phase 1 pipeline; references are deliberately absent from this module."""
-from dataclasses import dataclass
-import time
-
+"""Raw vehicle to a cutout and refined shadow, using CPU inference."""
 import numpy as np
-from PIL import Image, ImageOps
-
+from PIL import Image, ImageOps, ImageEnhance
 from .segmentation import Segmenter, refine_mask
-from .geometry import estimate_geometry, draw_geometry_overlay
+from .geometry import estimate_geometry
 from .placement import Framing, normalize
-from .shadows import render_shadows, composite_white
-
-
-@dataclass
-class ProcessedVehicle:
-    final: np.ndarray
-    stages: dict[str, np.ndarray]
-    metadata: dict
+from .shadows import render_shadows
+from .parking import composite_parking
 
 
 class VehiclePipeline:
-    def __init__(self, model="birefnet-general", threads=6, framing: Framing | None = None):
-        self.model = model
-        self.threads = threads
-        self.framing = framing or Framing()
+    def __init__(self):
         self.segmenter = None
 
-    def process(self, image: Image.Image, mask: np.ndarray | None = None) -> ProcessedVehicle:
-        start = time.perf_counter()
+    def process(self, image: Image.Image, background: Image.Image | None = None,
+                enhancement: bool = False) -> Image.Image:
+        if self.segmenter is None:
+            self.segmenter = Segmenter()
         rgb = np.asarray(ImageOps.exif_transpose(image).convert("RGB"))
-        timings = {}
-        if mask is None:
-            if self.segmenter is None:
-                stage_start = time.perf_counter()
-                self.segmenter = Segmenter(self.model, self.threads)
-                timings["model_load_seconds"] = time.perf_counter() - stage_start
-            stage_start = time.perf_counter()
-            mask = self.segmenter.predict(rgb)
-            timings["segmentation_seconds"] = time.perf_counter() - stage_start
-            mask_origin = "model_inference"
-            segmentation_info = self.segmenter.last_info.copy()
-        else:
-            if mask.shape != rgb.shape[:2]:
-                raise ValueError("Cached mask dimensions do not match source")
-            mask_origin = "cached_segmentation_for_development"
-            segmentation_info = {"inference_passes": 0, "note": "cached mask"}
-
-        stage_start = time.perf_counter()
-        alpha = refine_mask(mask)
-        timings["mask_refinement_seconds"] = time.perf_counter() - stage_start
-
-        stage_start = time.perf_counter()
+        alpha = refine_mask(self.segmenter.predict(rgb))
         geometry = estimate_geometry(rgb, alpha)
-        timings["geometry_seconds"] = time.perf_counter() - stage_start
-
-        stage_start = time.perf_counter()
-        color, placed_alpha, placed_geometry, placement = normalize(
-            rgb, alpha, geometry, self.framing
-        )
-        timings["placement_seconds"] = time.perf_counter() - stage_start
-
-        stage_start = time.perf_counter()
-        layers = render_shadows(placed_alpha.shape, placed_geometry)
-        final = composite_white(color, placed_alpha, layers["combined"])
-        timings["shadow_and_compositing_seconds"] = time.perf_counter() - stage_start
-        timings["processing_seconds"] = time.perf_counter() - start
-
-        normalized_white = composite_white(color, placed_alpha)
-        stages = {
-            "segmentation_mask": mask,
-            "refined_mask": alpha,
-            "geometry_contacts": draw_geometry_overlay(rgb, alpha, geometry),
-            "normalized_placement": normalized_white,
-            "normalized_alpha": placed_alpha,
-            "normalized_cutout": np.dstack([color, placed_alpha]),
-            "normalized_geometry": draw_geometry_overlay(
-                normalized_white, placed_alpha, placed_geometry
-            ),
-        }
-        for name, layer in layers.items():
-            stages[f"shadow_{name}_alpha"] = np.uint8(np.rint(layer * 255))
-            stages[f"shadow_{name}_white"] = np.uint8(np.rint((1 - layer) * 255))
-
-        metadata = {
-            "model": self.model,
-            "mask_origin": mask_origin,
-            "segmentation_info": segmentation_info,
-            "source_size": [rgb.shape[1], rgb.shape[0]],
-            "geometry": geometry,
-            "normalized_geometry": placed_geometry,
-            "placement": placement,
-            "timings": timings,
-        }
-        return ProcessedVehicle(final, stages, metadata)
+        color, alpha, geometry, _ = normalize(rgb, alpha, geometry, Framing())
+        shadow = render_shadows(alpha.shape, geometry)["combined"]
+        cutout = np.dstack([color, alpha])
+        if background is not None:
+            return composite_parking(cutout, np.uint8(np.rint(shadow*255)),
+                                     geometry, background, enhancement)
+        if enhancement:
+            color = np.asarray(ImageEnhance.Contrast(Image.fromarray(color)).enhance(1.02))
+        # Car over black translucent shadow. Store straight RGBA so this PNG
+        # can be placed on any background without a white matte or dark fringe.
+        a = alpha.astype(np.float32)/255
+        combined_alpha = a + shadow*(1-a)
+        premult = color.astype(np.float32)*a[...,None]
+        straight = np.divide(premult, combined_alpha[...,None],
+                             out=np.zeros_like(premult), where=combined_alpha[...,None]>1e-6)
+        return Image.fromarray(np.dstack([np.uint8(np.clip(np.rint(straight),0,255)),
+                                          np.uint8(np.rint(combined_alpha*255))]))

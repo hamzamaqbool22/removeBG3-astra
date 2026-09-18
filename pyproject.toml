@@ -14,11 +14,11 @@ dependencies = [
   "Pillow>=11,<13",
   "opencv-python-headless>=4.10,<6",
   "scipy>=1.14,<2",
-  "psutil>=6,<8",
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.30,<1",
+  "python-multipart>=0.0.20,<1",
+  "urllib3>=2.2,<3",
 ]
-
-[project.scripts]
-vehicle-process = "vehicle_pipeline.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["vehicle_pipeline*"]

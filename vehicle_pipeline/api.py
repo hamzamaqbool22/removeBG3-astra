@@ -1,11 +1,15 @@
 """Run: uvicorn vehicle_pipeline.api:app --host 0.0.0.0 --port 8000"""
 from io import BytesIO
+from contextlib import asynccontextmanager
 from pathlib import Path
 import ipaddress
 import json
+import os
+import secrets
 import socket
 import threading
 from urllib.parse import urlsplit, urljoin
+from typing import Literal
 import warnings
 
 import urllib3
@@ -18,14 +22,25 @@ from starlette.datastructures import UploadFile
 from PIL import Image, UnidentifiedImageError
 
 from .pipeline import VehiclePipeline
+from .segmentation import Segmenter
 
 ROOT = Path(__file__).resolve().parents[1]
-BACKGROUNDS = ROOT / 'backgrounds/ParkingLots'
+BACKGROUNDS = ROOT / 'backgrounds'
 MAX_BYTES = 25 * 1024 * 1024
 MAX_PIXELS = 20_000_000
-app = FastAPI(title='Vehicle Image API', version='1.0.0')
 pipeline = VehiclePipeline()
 processing_lock = threading.Lock()  # One reusable CPU model, one inference at a time.
+API_KEY = os.environ.get('API_KEY', '')
+
+
+@asynccontextmanager
+async def lifespan(app):
+    if os.environ.get('PRELOAD_MODEL', 'false').lower() == 'true':
+        pipeline.segmenter = await run_in_threadpool(Segmenter)
+    yield
+
+
+app = FastAPI(title='Vehicle Image API', version='1.0.0', lifespan=lifespan)
 
 
 class Options(BaseModel):
@@ -33,6 +48,7 @@ class Options(BaseModel):
     imageurl: str | None = None
     isBackgroundWant: bool = False
     background: int = Field(default=1, ge=1, le=9999)
+    backgroundFolder: Literal["parking-lots", "backgrounds"] = "parking-lots"
     enhancment: bool = False  # Keep the spelling requested by the client.
 
     @field_validator('background', mode='before')
@@ -103,9 +119,9 @@ def process_image(data: bytes, options: Options) -> bytes:
         raise ValueError('Invalid or oversized image') from exc
     background = None
     if options.isBackgroundWant:
-        path = BACKGROUNDS / f'{options.background}.png'
+        path = BACKGROUNDS / options.backgroundFolder / f'{options.background}.png'
         if not path.is_file():
-            raise ValueError(f'Background {options.background} is not available')
+            raise ValueError(f'Background {options.background} is not available in {options.backgroundFolder}')
         with Image.open(path) as im:
             background = im.convert('RGB')
     with processing_lock:
@@ -129,15 +145,19 @@ def health():
                   "imageurl": {"type": "string"},
                   "isBackgroundWant": {"type": "boolean", "default": False},
                   "background": {"type": "integer", "default": 1},
+                  "backgroundFolder": {"type": "string", "enum": ["parking-lots", "backgrounds"], "default": "parking-lots"},
                   "enhancment": {"type": "boolean", "default": False}
               }}}
           }}})
 async def process(request: Request):
-    """JSON: imageurl, isBackgroundWant, background (default 1), enhancment.
+    """JSON: imageurl, isBackgroundWant, background, backgroundFolder, enhancment.
 
     Multipart: image (file/blob) or imageurl (file/URL), plus the same fields.
     Booleans in multipart are strings such as true/false. Returns PNG bytes.
     """
+    if API_KEY and not secrets.compare_digest(
+            request.headers.get('authorization', '').encode(), f'Bearer {API_KEY}'.encode()):
+        raise HTTPException(401, 'Invalid API key', headers={'WWW-Authenticate': 'Bearer'})
     body = bytearray()
     async for chunk in request.stream():
         body.extend(chunk)
@@ -153,7 +173,7 @@ async def process(request: Request):
             async def receive():
                 return {'type': 'http.request', 'body': bytes(body), 'more_body': False}
             buffered = BufferedRequest(request.scope, receive)
-            async with buffered.form(max_files=1, max_fields=5, max_part_size=MAX_BYTES) as form:
+            async with buffered.form(max_files=1, max_fields=6, max_part_size=MAX_BYTES) as form:
                 fields = dict(form)
                 upload = fields.pop('image', None)
                 if isinstance(fields.get('imageurl'), UploadFile):

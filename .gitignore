@@ -6,3 +6,6 @@ __pycache__/
 
 outputs/
 *.egg-info/
+.env
+review/
+:memory:.ses

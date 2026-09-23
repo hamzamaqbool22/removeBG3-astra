@@ -1,0 +1,9 @@
+**
+!pyproject.toml
+!vehicle_pipeline/
+!vehicle_pipeline/*.py
+!backgrounds/
+!backgrounds/parking-lots/
+!backgrounds/parking-lots/*.png
+!backgrounds/backgrounds/
+!backgrounds/backgrounds/*.png

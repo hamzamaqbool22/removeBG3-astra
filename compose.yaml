@@ -1,0 +1,13 @@
+services:
+  vehicle-api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      API_KEY: ${API_KEY:?Set API_KEY in .env}
+      CPU_THREADS: ${CPU_THREADS:-4}
+      PRELOAD_MODEL: "true"
+    cpus: 4
+    mem_limit: 12g
+    stop_grace_period: 180s

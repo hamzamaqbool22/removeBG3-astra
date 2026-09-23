@@ -8,10 +8,13 @@ from PIL import Image
 
 
 class Segmenter:
-    def __init__(self, model: str = "birefnet-general", threads: int = 6,
+    def __init__(self, model: str = "birefnet-general", threads: int | None = None,
                  model_dir: str | Path | None = None, memory_mode: str = 'balanced'):
         root = Path(__file__).resolve().parents[1]
-        cache = Path(model_dir) if model_dir else root / ".cache/models"
+        threads = threads if threads is not None else int(os.environ.get("CPU_THREADS", "6"))
+        if threads < 1:
+            raise ValueError("CPU_THREADS must be positive")
+        cache = Path(model_dir or os.environ.get("U2NET_HOME") or root / ".cache/models")
         cache.mkdir(parents=True, exist_ok=True)
         os.environ["U2NET_HOME"] = str(cache.resolve())
         os.environ.setdefault("NUMBA_CACHE_DIR", str(root / ".cache/numba"))

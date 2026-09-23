@@ -27,6 +27,56 @@ def match_vehicle_light(colors, alpha, background):
     return adjusted
 
 
+def blend_ambient(colors, alpha, background, geometry, matrix):
+    """Gentle spatial illumination cues, confined to the existing vehicle alpha.
+
+    This is a photographic approximation, not reconstructed environment lighting.
+    Robust low-resolution samples avoid projecting scene texture onto the paint.
+    """
+    h, w = background.shape[:2]
+    scene = cv2.resize(background, (240, 160), interpolation=cv2.INTER_AREA).astype(np.float32)/255
+    x0, y0, x1, y1 = geometry['bbox']
+    scale, tx, ty = float(matrix[0,0]), float(matrix[0,2]), float(matrix[1,2])
+
+    def chroma(pixels, strength, limit):
+        pixels = pixels.reshape(-1,3)
+        level = pixels.mean(axis=1)
+        valid = (level>.15)&(level<.92)&(np.ptp(pixels,axis=1)<.25)
+        if valid.sum()<24:
+            return np.ones(3,np.float32)
+        sample = np.median(pixels[valid],axis=0)
+        return np.clip(1+strength*(sample/sample.mean()-1),1-limit,1+limit)
+
+    # Broad upper-scene cue; restrained so a blue sky does not paint a white car blue.
+    sky_gain = chroma(scene[:64,24:216], .20, .025)
+    # Three ground patches follow actual placement. Interpolate their colors,
+    # never their texture. Missing/out-of-frame samples fall back to neutral.
+    gy = int(np.clip((geometry['ground_y']*scale+ty)/h*160, 0, 159))
+    road_gains = []
+    for fraction in (.15,.50,.85):
+        gx = int(np.clip(((x0+(x1-x0)*fraction)*scale+tx)/w*240,0,239))
+        patch = scene[max(0,gy-4):min(160,gy+18),max(0,gx-18):min(240,gx+18)]
+        road_gains.append(chroma(patch,.35,.045))
+    xs = np.clip((np.arange(colors.shape[1])-x0)/max(1,x1-x0),0,1)
+    local_ground = np.stack([np.interp(xs,(.15,.50,.85),np.array(road_gains)[:,c])
+                             for c in range(3)],axis=1).astype(np.float32)
+    height = np.clip((np.arange(colors.shape[0])-y0)/max(1,y1-y0),0,1)[:,None,None]
+    lower = np.clip((height-.48)/.48,0,1)
+    lower = lower*lower*(3-2*lower)
+    # Saturated paint gets less chromatic adaptation. Deep blacks receive no
+    # additive lift; wheel rubber and window details keep their black point.
+    luminance = colors @ np.array([.2126,.7152,.0722],np.float32)
+    saturation = np.ptp(colors,axis=2)/np.maximum(colors.max(axis=2),.05)
+    protect = (1-.75*np.clip(saturation,0,1))[...,None]
+    gain = 1+protect*((sky_gain[None,None,:]-1)*(1-lower)*.65
+                      +(local_ground[None,:,:]-1)*lower)
+    # A tiny diffuse ground bounce is strongest on lower midtones, vanishes
+    # at black/white, and remains under ~1.6 sRGB levels at neutral pavement.
+    bounce = .025*lower*luminance[...,None]*(1-luminance[...,None])
+    adjusted = np.clip(colors*gain+bounce*protect*local_ground[None,:,:],0,1)
+    return np.where((alpha>0)[...,None],adjusted,colors).astype(np.float32)
+
+
 def composite_parking(cutout: np.ndarray, shadow: np.ndarray, geometry: dict,
                       background: Image.Image, enhancement: bool = False) -> Image.Image:
     if cutout.ndim != 3 or cutout.shape[2] != 4 or shadow.shape != cutout.shape[:2]:
@@ -48,6 +98,7 @@ def composite_parking(cutout: np.ndarray, shadow: np.ndarray, geometry: dict,
     colors = cutout[..., :3].astype(np.float32) / 255
     if enhancement:
         colors = match_vehicle_light(colors, source_alpha, rgb)
+        colors = blend_ambient(colors, source_alpha, rgb, geometry, matrix)
     interpolation = cv2.INTER_LANCZOS4
     alpha = np.clip(cv2.warpAffine(source_alpha, matrix, (w, h), flags=interpolation), 0, 1)
     premult = cv2.warpAffine(colors * source_alpha[..., None], matrix, (w, h), flags=interpolation)

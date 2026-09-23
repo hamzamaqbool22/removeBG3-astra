@@ -81,7 +81,7 @@ def _ellipse_score(gray: np.ndarray, mask: np.ndarray, bottom: np.ndarray,
 
 
 def _wheel_ellipses(rgb: np.ndarray, mask: np.ndarray, bbox: list[int],
-                    bottom: np.ndarray) -> list[dict[str, Any]]:
+                    bottom: np.ndarray, expanded: bool = False) -> list[dict[str, Any]]:
     x0, y0, x1, y1 = bbox
     bw, bh = x1 - x0, y1 - y0
     gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
@@ -97,7 +97,7 @@ def _wheel_ellipses(rgb: np.ndarray, mask: np.ndarray, bbox: list[int],
     for peak in peaks:
         for xshift in (-.035, 0, .035):
             cx = x0 + peak + xshift*bh
-            for rf in (.15,.18,.21,.24):
+            for rf in ((.11,.13,.15,.18,.21,.24) if expanded else (.15,.18,.21,.24)):
                 ry=rf*bh
                 for oval in (.48,.62,.76,.94):
                     proposals.append((cx, float(bottom[peak])-ry, ry*oval, ry))
@@ -120,6 +120,8 @@ def _wheel_ellipses(rgb: np.ndarray, mask: np.ndarray, bbox: list[int],
         # A tire is usually a substantial fraction of vehicle height. This
         # weak prior breaks ties against smaller circles nested inside a rim.
         score += .065 * float(np.clip((ry/bh-.12)/.10,0,1)) if score else 0
+        if expanded and evidence.get('protrusion',0) < .15:
+            score *= .62
         if score >= .63:
             ranked.append({"cx": cx, "cy": cy, "rx": rx, "ry": ry,
                            "score": score, "evidence": evidence})
@@ -141,14 +143,22 @@ def _wheel_ellipses(rgb: np.ndarray, mask: np.ndarray, bbox: list[int],
     for a, b in combinations(candidates, 2):
         span = abs(a["cx"] - b["cx"])
         ratio = min(a["ry"], b["ry"]) / max(a["ry"], b["ry"])
-        if span < .28 * bw or ratio < .48:
+        if span < .28 * bw or ratio < (.40 if expanded else .48):
             continue
         oval_a, oval_b = a["rx"] / a["ry"], b["rx"] / b["ry"]
         if abs(oval_a - oval_b) > .34:
             continue
         pair_score = a["score"] + b["score"] + .13 * min(span / (.65 * bw), 1) - .8 * abs(oval_a - oval_b)
         pairs.append((pair_score, [a, b]))
-    return max(pairs, key=lambda pair: pair[0])[1] if pairs else candidates[:1]
+    selected = max(pairs, key=lambda pair: pair[0])[1] if pairs else candidates[:1]
+    # Only widen the search when a selected "wheel" has no rounded contact
+    # protrusion. High-camera views can expose a small distant wheel; a grille
+    # can otherwise win the conventional-size search and reverse the footprint.
+    if not expanded and (len(selected) < 2 or any(c['evidence']['protrusion'] < .15 for c in selected)):
+        refined = _wheel_ellipses(rgb, mask, bbox, bottom, expanded=True)
+        if len(refined) == 2:
+            return refined
+    return selected
 
 
 def _fallback_contacts(rgb: np.ndarray, mask: np.ndarray, bbox: list[int],

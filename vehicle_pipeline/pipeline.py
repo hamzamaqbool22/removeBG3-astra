@@ -1,4 +1,5 @@
 """Raw vehicle to a cutout and refined shadow, using CPU inference."""
+import cv2
 import numpy as np
 from PIL import Image, ImageOps, ImageEnhance
 from .segmentation import Segmenter, refine_mask
@@ -6,6 +7,7 @@ from .geometry import estimate_geometry
 from .placement import Framing, normalize
 from .shadows import render_shadows
 from .parking import composite_parking
+from .source_shadow import recover_shadow
 
 
 class VehiclePipeline:
@@ -19,8 +21,16 @@ class VehiclePipeline:
         rgb = np.asarray(ImageOps.exif_transpose(image).convert("RGB"))
         alpha = refine_mask(self.segmenter.predict(rgb))
         geometry = estimate_geometry(rgb, alpha)
-        color, alpha, geometry, _ = normalize(rgb, alpha, geometry, Framing())
-        shadow = render_shadows(alpha.shape, geometry)["combined"]
+        source_shadow = recover_shadow(rgb, alpha)
+        color, alpha, geometry, placement = normalize(rgb, alpha, geometry, Framing())
+        if source_shadow is not None:
+            # Preserve the photographed cast-shadow direction and extent. Do
+            # not stack synthetic shading onto it (that doubles the darkness).
+            shadow = cv2.warpAffine(source_shadow, np.asarray(placement["matrix"], np.float32),
+                                    (alpha.shape[1], alpha.shape[0]), flags=cv2.INTER_LINEAR)
+            shadow = np.clip(shadow, 0, .97)
+        else:
+            shadow = render_shadows(alpha.shape, geometry)["combined"]
         cutout = np.dstack([color, alpha])
         if background is not None:
             return composite_parking(cutout, np.uint8(np.rint(shadow*255)),

@@ -31,6 +31,7 @@ JSON for an image URL:
   "imageurl": "https://example.com/car.jpg",
   "isBackgroundWant": true,
   "background": 1,
+  "backgroundFolder": "parking-lots",
   "enhancment": true
 }
 ```
@@ -38,8 +39,13 @@ JSON for an image URL:
 - `imageurl`: public HTTP(S) image URL. For a blob, use multipart upload instead.
 - `isBackgroundWant`: default `false`. False returns transparent RGBA PNG **with
   refined shadows**. True places the car on a parking background.
-- `background`: optional number, default `1`; selects `backgrounds/ParkingLots/1.png`.
+- `background`: optional number, default `1`; selects `backgrounds/parking-lots/1.png`.
   The string `"1.png"` is also accepted. Ignored when no background is requested.
+- `backgroundFolder`: optional, default `"parking-lots"`. Allowed values are
+  `"parking-lots"` (25 images) and `"backgrounds"` (40 images). Selects the folder
+  under `backgrounds/`; arbitrary paths are rejected. For example, folder
+  `"backgrounds"` with background `12` selects `backgrounds/backgrounds/12.png`.
+  An unavailable number returns 422; it does not silently select a different image.
 - `enhancment`: optional, default `false` (spelling matches the requested API).
   True applies the vehicle color/exposure correction and subtle final contrast.
   Without a background, true applies subtle vehicle contrast only.
@@ -56,6 +62,7 @@ Lighting is a photo correction; original reflections and perspective remain.
 curl --fail-with-body http://localhost:8000/process \
   -F 'image=@images/left.png' \
   -F 'isBackgroundWant=true' \
+  -F 'backgroundFolder=parking-lots' \
   -F 'background=15' \
   -F 'enhancment=true' \
   --output result.png
@@ -66,6 +73,7 @@ const form = new FormData();
 form.append('image', blob, 'vehicle.jpg');
 form.append('isBackgroundWant', 'true');
 form.append('background', '1');
+form.append('backgroundFolder', 'parking-lots');
 form.append('enhancment', 'true');
 const response = await fetch('/process', { method: 'POST', body: form });
 if (!response.ok) throw new Error(await response.text());
@@ -84,4 +92,42 @@ The API does not save submitted images or generated results.
 - `pipeline.py`: segmentation, geometry, refined shadows, transparent export.
 - `segmentation.py`, `geometry.py`, `placement.py`, `shadows.py`: production processing.
 - `parking.py`: simple background replacement and optional enhancement.
-- `images/`, `remove.bg-outputs/`, `backgrounds/`: original assets retained.
+- `images/`: original input examples (excluded from Docker).
+- `backgrounds/parking-lots/`, `backgrounds/backgrounds/`: numbered runtime PNGs.
+
+## Source-aware shadows (CPU only)
+
+The API now first attempts to recover the **visible original cast shadow** from
+pavement below the vehicle. It estimates smooth ground brightness, separates
+connected dark regions from the cutout, and exports their attenuation as shadow
+alpha. The same transform moves the car and its shadow. This preserves the
+photographed direction, extent, and camera-height appearance without diffusion
+or GPU processing. BiRefNet remains only for background removal, on CPU.
+
+When the ground estimate or shadow evidence is insufficient, procedural contact
+shading is used instead. Dark ground markings can be ambiguous; a cropped or
+absent shadow cannot be recovered exactly. Recovered shadows also retain the
+source lighting direction, which may differ from a replacement background.
+No algorithm here guarantees exact reconstruction for arbitrary scenes.
+
+## Ambient blending
+
+With `isBackgroundWant=true` and `enhancment=true`, enhancement now also applies
+subtle spatial ambient color and ground bounce to the vehicle. Broad upper-scene
+color affects the upper body gently; three pavement samples near the placed car
+provide a smoothly varying lower-body tint. Deep blacks are preserved and
+saturated colors receive less adaptation. The vehicle alpha, placement, and
+shadow opacity are unchanged. Existing final contrast enhancement still applies.
+
+This is CPU-only photo blending, not generated reflections or physical relighting.
+It adds no API fields. With enhancement disabled, results are unchanged. Without
+a selected background, the existing transparent-output behavior is unchanged.
+
+## Hosting
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for Docker, custom-server, Vast, Railway,
+and Laravel integration instructions. Set `API_KEY` for Bearer authentication on
+`/process`; unset preserves local unauthenticated use. `CPU_THREADS` defaults to 6
+locally and 4 in Docker. Docker preloads the model before accepting traffic.
+Both background folders are included in Docker. Only the selected PNG is loaded
+for a request; the full collection is not preloaded into RAM.

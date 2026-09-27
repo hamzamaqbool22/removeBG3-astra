@@ -11,6 +11,7 @@ import threading
 from urllib.parse import urlsplit, urljoin
 from typing import Literal
 import warnings
+import asyncio
 
 import urllib3
 from fastapi import FastAPI, HTTPException, Request
@@ -23,6 +24,7 @@ from PIL import Image, UnidentifiedImageError
 
 from .pipeline import VehiclePipeline
 from .segmentation import Segmenter
+from .jobs import JobQueue
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKGROUNDS = ROOT / 'backgrounds'
@@ -37,10 +39,37 @@ API_KEY = os.environ.get('API_KEY', '')
 async def lifespan(app):
     if os.environ.get('PRELOAD_MODEL', 'false').lower() == 'true':
         pipeline.segmenter = await run_in_threadpool(Segmenter)
-    yield
+    app.state.jobs = JobQueue(os.environ.get('JOB_DIR', str(ROOT / '.cache/jobs')),
+                             run_job)
+    try:
+        yield
+    finally:
+        await run_in_threadpool(app.state.jobs.close)
 
 
 app = FastAPI(title='Vehicle Image API', version='1.0.0', lifespan=lifespan)
+upload_slots = asyncio.Semaphore(4)
+
+
+def authenticate(request):
+    if API_KEY and not secrets.compare_digest(
+            request.headers.get('authorization', '').encode(), f'Bearer {API_KEY}'.encode()):
+        raise HTTPException(401, 'Invalid API key', headers={'WWW-Authenticate': 'Bearer'})
+
+
+@app.middleware('http')
+async def bound_uploads(request, call_next):
+    if request.method == 'POST' and request.url.path in ('/process', '/jobs'):
+        async with upload_slots:
+            return await call_next(request)
+    return await call_next(request)
+
+
+def run_job(data, options):
+    options = Options.model_validate(options)
+    if data is None:
+        data = fetch_image(options.imageurl)
+    return process_image(data, options)
 
 
 class Options(BaseModel):
@@ -136,8 +165,8 @@ def health():
     return {'status': 'ok'}
 
 
-@app.post('/process', response_class=Response,
-          responses={200: {'content': {'image/png': {}}}},
+@app.post('/jobs', status_code=202)
+@app.post('/process', status_code=202,
           openapi_extra={"requestBody": {"required": True, "content": {
               "application/json": {"schema": Options.model_json_schema()},
               "multipart/form-data": {"schema": {"type": "object", "properties": {
@@ -153,11 +182,9 @@ async def process(request: Request):
     """JSON: imageurl, isBackgroundWant, background, backgroundFolder, enhancment.
 
     Multipart: image (file/blob) or imageurl (file/URL), plus the same fields.
-    Booleans in multipart are strings such as true/false. Returns PNG bytes.
+    Booleans in multipart are strings such as true/false. Returns a queued job.
     """
-    if API_KEY and not secrets.compare_digest(
-            request.headers.get('authorization', '').encode(), f'Bearer {API_KEY}'.encode()):
-        raise HTTPException(401, 'Invalid API key', headers={'WWW-Authenticate': 'Bearer'})
+    authenticate(request)
     body = bytearray()
     async for chunk in request.stream():
         body.extend(chunk)
@@ -187,12 +214,35 @@ async def process(request: Request):
             raise HTTPException(415, 'Use application/json or multipart/form-data')
         if (upload_data is not None) == bool(options.imageurl):
             raise ValueError('Provide exactly one image upload or imageurl')
-        if upload_data is None:
-            try:
-                upload_data = await run_in_threadpool(fetch_image, options.imageurl)
-            except (OSError, urllib3.exceptions.HTTPError) as exc:
-                raise ValueError('Could not fetch image URL') from exc
-        result = await run_in_threadpool(process_image, upload_data, options)
+        if options.isBackgroundWant and not (BACKGROUNDS / options.backgroundFolder / f'{options.background}.png').is_file():
+            raise ValueError('Selected background is not available')
+        job_id = await run_in_threadpool(request.app.state.jobs.submit, upload_data, options.model_dump())
+    except OverflowError as exc:
+        raise HTTPException(429, str(exc), headers={'Retry-After': '10'}) from exc
     except (ValueError, ValidationError) as exc:
         raise HTTPException(422, str(exc)) from exc
-    return Response(result, media_type='image/png', headers={'Content-Disposition': 'inline; filename="vehicle.png"'})
+    return {'jobId': job_id, 'status': 'queued', 'statusUrl': f'/jobs/{job_id}',
+            'resultUrl': f'/jobs/{job_id}/result'}
+
+
+@app.get('/jobs/{job_id}')
+async def job_status(job_id: str, request: Request):
+    authenticate(request)
+    job = await run_in_threadpool(request.app.state.jobs.get, job_id)
+    if job is None:
+        raise HTTPException(404, 'Job not found or expired')
+    return job
+
+
+@app.get('/jobs/{job_id}/result')
+async def job_result(job_id: str, request: Request):
+    authenticate(request)
+    job = await run_in_threadpool(request.app.state.jobs.get, job_id)
+    if job is None:
+        raise HTTPException(404, 'Job not found or expired')
+    if job['status'] != 'completed':
+        raise HTTPException(409, 'Result not ready; check job status')
+    result = await run_in_threadpool(request.app.state.jobs.get, job_id, True)
+    if result is None:
+        raise HTTPException(404, 'Result expired')
+    return Response(result, media_type='image/png')

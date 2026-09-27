@@ -1,5 +1,11 @@
 # Vehicle API deployment handoff
 
+> **Queue deployment update:** follow [QUEUE.md](QUEUE.md) first. The old
+> synchronous Laravel example and 4-connection limit below are superseded.
+> Use one Uvicorn worker with `--limit-concurrency 128` and persistent JOB_DIR.
+> Compose now allows 24 GB RAM: recent Mac processing showed Python around 15 GB,
+> so the old 8 GB estimate/12 GB limit below are not a safe sizing assumption.
+
 ## Before deployment
 
 The deployment includes 25 PNGs in `backgrounds/parking-lots/` and 40 in

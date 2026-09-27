@@ -1,5 +1,10 @@
 # Vehicle Image API
 
+> **Queue update: the API contract changed.** POST `/process` (also `/jobs`)
+> now returns **202 JSON with a job ID**, not PNG. See [QUEUE.md](QUEUE.md) for
+> submission, polling, download and deployment changes. The direct-PNG client
+> examples below describe the previous API and must be migrated before use.
+
 Raw vehicle photo → background removal → refined tire/chassis shadows → PNG.
 CPU only. One endpoint; no UI, output folders, benchmark scripts, or mode switches.
 

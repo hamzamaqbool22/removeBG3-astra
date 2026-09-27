@@ -9,5 +9,10 @@ services:
       CPU_THREADS: ${CPU_THREADS:-4}
       PRELOAD_MODEL: "true"
     cpus: 4
-    mem_limit: 12g
+    mem_limit: 24g
+    volumes:
+      - vehicle-jobs:/app/.cache/jobs
     stop_grace_period: 180s
+
+volumes:
+  vehicle-jobs:

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Vehicle Studio \u2014 Local Test",
+  "version": "0.4.0",
+  "description": "Local vehicle background removal and geometry-based shadows. No server upload.",
+  "permissions": [
+    "sidePanel",
+    "unlimitedStorage"
+  ],
+  "action": {
+    "default_title": "Open Vehicle Studio"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src 'self' https://res.cloudinary.com https://huggingface.co https://*.hf.co; img-src 'self' blob: data:;"
+  },
+  "host_permissions": [
+    "https://huggingface.co/*",
+    "https://*.hf.co/*",
+    "https://res.cloudinary.com/*"
+  ]
+}

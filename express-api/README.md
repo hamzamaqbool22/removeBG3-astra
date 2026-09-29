@@ -29,10 +29,9 @@ folder includes a default if Cloudinary fails; the job status exposes `warning`.
 ## Frontend contract
 
 One image per request. An uploaded browser Blob/File uses multipart form field
-`image`. A remote URL uses JSON `imageurl` instead; never send both. The URL host
-must be explicitly listed in IMAGE_URL_HOSTS. Only direct HTTPS links on public
-IPs are accepted; redirects, local-network hosts and embedded credentials are
-rejected. Uploaded images do not require an allowlist.
+`image`. A remote URL uses JSON `imageurl` instead; never send both. Any public
+HTTPS host is accepted for `imageurl`. Redirects, local-network/private IPs,
+custom ports, and embedded credentials are rejected.
 
 POST `/jobs` (alias `/process`) returns **202 JSON**, not image bytes:
 
@@ -63,7 +62,7 @@ curl -F 'image=@/absolute/path/car.jpg' \
   http://127.0.0.1:8002/jobs
 ```
 
-JSON URL request (first configure IMAGE_URL_HOSTS):
+JSON URL request:
 
 ```json
 {

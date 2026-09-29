@@ -53,7 +53,7 @@ export function createApp(queue){
       if(req.file)await rename(req.file.path,input);
       else{
         if(typeof url!=='string'||url.length>2048)throw error(400,'Invalid imageurl');
-        try{await downloadImage(url,input,config.maxBytes,(process.env.IMAGE_URL_HOSTS??'').split(',').filter(Boolean));}catch(e){throw error(400,e.message);}
+        try{await downloadImage(url,input,config.maxBytes);}catch(e){throw error(400,e.message);}
       }
       if(req.aborted)throw error(400,'Upload disconnected');
       queue.add(id,opts);accepted=true;

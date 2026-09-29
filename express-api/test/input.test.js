@@ -8,10 +8,10 @@ test('accepts documented options and rejects invalid background paths and boolea
   assert.equal(options({background:3,enhancment:'true',isBackgroundWant:'true'}).enhancement,true);
   assert.throws(()=>options({folder:'../../'}));assert.throws(()=>options({background:'../../../1'}));assert.throws(()=>options({isBackgroundWant:'yes'}));
 });
-test('URL input rejects forbidden schemes, credentials and unapproved hosts before network access',async()=>{
-  for(const url of ['file:///etc/passwd','http://example.com/a','https://user:pass@example.com/a','https://other.example/a','https://example.com:8443/a'])
-    await assert.rejects(downloadImage(url,'/tmp/not-written-image',100,['example.com']),/HTTPS/);
-  await assert.rejects(downloadImage('https://127.0.0.1/a','/tmp/not-written-image',100,['127.0.0.1']),/Private or reserved/);
+test('URL input rejects forbidden schemes, credentials and private addresses before network access',async()=>{
+  for(const url of ['file:///etc/passwd','http://example.com/a','https://user:pass@example.com/a','https://example.com:8443/a'])
+    await assert.rejects(downloadImage(url,'/tmp/not-written-image',100),/HTTPS/);
+  await assert.rejects(downloadImage('https://127.0.0.1/a','/tmp/not-written-image',100),/Private or reserved/);
 });
 test('service authentication protects job endpoints and health remains available',async()=>{
   const original=process.env.API_KEY;process.env.API_KEY='test-secret';

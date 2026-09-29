@@ -6,9 +6,10 @@ import {Transform} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import ipaddr from 'ipaddr.js';
 // Resolve once and pin the connection to that public IP. Redirects are rejected.
-export async function downloadImage(raw,destination,maxBytes,hosts) {
+// Any public HTTPS host is allowed; private/reserved addresses are still blocked.
+export async function downloadImage(raw,destination,maxBytes) {
   const url=new URL(raw);
-  if(url.protocol!=='https:'||url.username||url.password||(url.port&&url.port!=='443')||!hosts.includes(url.hostname))throw Error('imageurl must use HTTPS on an IMAGE_URL_HOSTS allowlisted host');
+  if(url.protocol!=='https:'||url.username||url.password||(url.port&&url.port!=='443'))throw Error('imageurl must be a direct HTTPS URL without credentials or custom ports');
   const addresses=await lookup(url.hostname,{all:true});
   if(!addresses.length||addresses.some(a=>ipaddr.process(a.address).range()!=='unicast'))throw Error('Private or reserved imageurl addresses are not allowed');
   const ip=addresses[0];

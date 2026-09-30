@@ -1,9 +1,0 @@
-node_modules/
-vendor/
-models/
-backgrounds/
-validation/
-tools/python-deps/
-tools/browsers/
-.DS_Store
-release/

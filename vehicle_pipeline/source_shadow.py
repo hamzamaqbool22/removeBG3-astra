@@ -5,6 +5,7 @@ attenuation from surface texture. Unreliable scenes return None to use the rende
 """
 import cv2
 import numpy as np
+from scipy.ndimage import median_filter
 
 
 def recover_shadow(rgb, alpha):
@@ -53,7 +54,9 @@ def recover_shadow(rgb, alpha):
         return None
     base=np.clip(base,.12,.95)
     opacity=np.clip(1-smooth/base,0,.94).astype(np.float32)
-    opacity=cv2.medianBlur(opacity,7)
+    # OpenCV requires uint8 for a 7x7 median; preserve float opacity and
+    # its precision with SciPy. nearest matches OpenCV's replicated borders.
+    opacity=median_filter(opacity,size=7,mode="nearest")
     opacity=cv2.bilateralFilter(opacity,9,.12,4)
     opacity=cv2.GaussianBlur(opacity,(0,0),max(.7,bw*.0012))
     candidate=((opacity>.16)&roi).astype(np.uint8)

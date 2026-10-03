@@ -9,8 +9,14 @@ import uuid
 from pathlib import Path
 
 
+class JobFailure(RuntimeError):
+    """A safe public message; the chained exception stays in server logs."""
+
+
 class JobQueue:
-    def __init__(self, directory, process, capacity=100, retention=3600):
+    def __init__(self, directory, process, capacity=1000, retention=3600):
+        if capacity < 1:
+            raise ValueError("Queue capacity must be positive")
         self.directory = Path(directory)
         self.directory.mkdir(parents=True, exist_ok=True)
         self.owner = (self.directory / 'worker.lock').open('a')
@@ -63,6 +69,7 @@ class JobQueue:
             now = time.time()
             db.execute('INSERT INTO jobs VALUES (?,?,?,?,?,?,?,?)',
                        (job_id, now, now, 'queued', json.dumps(options), data, None, None))
+        logging.getLogger("uvicorn.error").info("Queue accepted %s (%s/%s active or waiting)", job_id, count + 1, self.capacity)
         return job_id
 
     def get(self, job_id, result=False):
@@ -87,16 +94,19 @@ class JobQueue:
                     self.stop.wait(.25)
                     continue
                 job_id, data, options = row
+                started = time.monotonic()
+                logging.getLogger("uvicorn.error").info("Queue processing %s", job_id)
                 try:
                     result = self.process(data, json.loads(options))
                     with self.connect() as db:
                         db.execute("UPDATE jobs SET status='completed',result=?,input=NULL,options='{}',updated=? WHERE id=?",
                                    (result, time.time(), job_id))
-                except Exception:
+                    logging.getLogger("uvicorn.error").info("Queue completed %s in %.2fs", job_id, time.monotonic() - started)
+                except Exception as exc:
                     logging.exception('Image job %s failed', job_id)
                     with self.connect() as db:
                         db.execute("UPDATE jobs SET status='failed',input=NULL,options='{}',error=?,updated=? WHERE id=?",
-                                   ('Image processing failed; check image and selected background.', time.time(), job_id))
+                                   (str(exc) if isinstance(exc, JobFailure) else 'Image processing failed; check server logs using this job ID.', time.time(), job_id))
             except Exception:
                 logging.exception('Queue worker error')
                 self.stop.wait(1)

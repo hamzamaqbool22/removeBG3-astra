@@ -136,3 +136,45 @@ and Laravel integration instructions. Set `API_KEY` for Bearer authentication on
 locally and 4 in Docker. Docker preloads the model before accepting traffic.
 Both background folders are included in Docker. Only the selected PNG is loaded
 for a request; the full collection is not preloaded into RAM.
+
+
+### Direct PNG endpoint (Template testing)
+
+`POST /generate` accepts exactly the same JSON or multipart fields as `/process`.
+It waits in the **same FIFO queue**, then returns `200 image/png` directly. There
+is no client polling. `/process` and `/jobs` remain available unchanged.
+
+```sh
+cd /Users/hamzamaqbool/Documents/python/removeBG3
+CPU_THREADS=4 .venv/bin/python -m uvicorn vehicle_pipeline.api:app --host 127.0.0.1 --port 8000 --workers 1 --limit-concurrency 1200
+```
+
+In the extension select **AI Background → Template testing**, choose a built-in
+background, and keep the panel open. Its editable endpoint defaults to
+`http://127.0.0.1:8000/generate`. Requests run in the panel (not Chrome's service
+worker), one photo at a time; finished photos preserve Undo. Closing the panel
+cancels the client request; accepted server work may still finish. No automatic
+retry or resume occurs in this mode. The panel batch timeout is two hours.
+
+```sh
+curl --fail-with-body http://127.0.0.1:8000/generate \
+  -F image=@/path/to/car.jpg \
+  -F isBackgroundWant=true -F background=1 \
+  -F backgroundFolder=parking-lots -F enhancment=true -o result.png
+```
+
+JSON uses `imageurl` instead of `image`. If `API_KEY` is set, API callers must
+send `Authorization: Bearer ...`; the local testing UI expects a server without
+API_KEY. Keep that unauthenticated server bound to localhost. `127.0.0.1` means
+each caller's own computer; other computers need a reachable shared server URL.
+
+The queue admits up to 1,000 queued/processing jobs (configurable with `QUEUE_CAPACITY`), subject to its 2 GB storage
+limit. One CPU worker processes them sequentially; excess submissions get 429.
+Waiting does not make inference faster: 100 callers may wait a long time, and
+any deployed proxy must allow long response timeouts. Use exactly one worker.
+
+Checks (no additional test dependency):
+```sh
+.venv/bin/python local-test/check_generate.py
+.venv/bin/python local-test/check_generate.py --real /path/to/car.png
+```

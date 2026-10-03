@@ -1,4 +1,7 @@
 """Raw vehicle to a cutout and refined shadow, using CPU inference."""
+import logging
+import time
+
 import cv2
 import numpy as np
 from PIL import Image, ImageOps, ImageEnhance
@@ -16,13 +19,29 @@ class VehiclePipeline:
 
     def process(self, image: Image.Image, background: Image.Image | None = None,
                 enhancement: bool = False) -> Image.Image:
+        started = time.perf_counter()
+
+        def mark(stage):
+            nonlocal started
+            now = time.perf_counter()
+            logging.getLogger("uvicorn.error").info("Timing %s: %.2fs", stage, now - started)
+            started = now
+
         if self.segmenter is None:
             self.segmenter = Segmenter()
+        mark("model ready")
         rgb = np.asarray(ImageOps.exif_transpose(image).convert("RGB"))
-        alpha = refine_mask(self.segmenter.predict(rgb))
+        mark("RGB conversion")
+        predicted = self.segmenter.predict(rgb)
+        mark("segmentation (%s passes)" % self.segmenter.last_info.get("inference_passes", "unknown"))
+        alpha = refine_mask(predicted)
+        mark("mask refinement")
         geometry = estimate_geometry(rgb, alpha)
+        mark("geometry")
         source_shadow = recover_shadow(rgb, alpha)
+        mark("source shadow recovery")
         color, alpha, geometry, placement = normalize(rgb, alpha, geometry, Framing())
+        mark("placement")
         if source_shadow is not None:
             # Preserve the photographed cast-shadow direction and extent. Do
             # not stack synthetic shading onto it (that doubles the darkness).
@@ -31,10 +50,13 @@ class VehiclePipeline:
             shadow = np.clip(shadow, 0, .97)
         else:
             shadow = render_shadows(alpha.shape, geometry)["combined"]
+        mark("shadow rendering")
         cutout = np.dstack([color, alpha])
         if background is not None:
-            return composite_parking(cutout, np.uint8(np.rint(shadow*255)),
+            result = composite_parking(cutout, np.uint8(np.rint(shadow*255)),
                                      geometry, background, enhancement)
+            mark("background compositing and enhancement")
+            return result
         if enhancement:
             color = np.asarray(ImageEnhance.Contrast(Image.fromarray(color)).enhance(1.02))
         # Car over black translucent shadow. Store straight RGBA so this PNG
@@ -44,5 +66,7 @@ class VehiclePipeline:
         premult = color.astype(np.float32)*a[...,None]
         straight = np.divide(premult, combined_alpha[...,None],
                              out=np.zeros_like(premult), where=combined_alpha[...,None]>1e-6)
-        return Image.fromarray(np.dstack([np.uint8(np.clip(np.rint(straight),0,255)),
+        result = Image.fromarray(np.dstack([np.uint8(np.clip(np.rint(straight),0,255)),
                                           np.uint8(np.rint(combined_alpha*255))]))
+        mark("transparent compositing")
+        return result

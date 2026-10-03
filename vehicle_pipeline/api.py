@@ -8,6 +8,8 @@ import os
 import secrets
 import socket
 import threading
+import time
+import logging
 from urllib.parse import urlsplit, urljoin
 from typing import Literal
 import warnings
@@ -24,7 +26,7 @@ from PIL import Image, UnidentifiedImageError
 
 from .pipeline import VehiclePipeline
 from .segmentation import Segmenter
-from .jobs import JobQueue
+from .jobs import JobQueue, JobFailure
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKGROUNDS = ROOT / 'backgrounds'
@@ -40,7 +42,7 @@ async def lifespan(app):
     if os.environ.get('PRELOAD_MODEL', 'false').lower() == 'true':
         pipeline.segmenter = await run_in_threadpool(Segmenter)
     app.state.jobs = JobQueue(os.environ.get('JOB_DIR', str(ROOT / '.cache/jobs')),
-                             run_job)
+                             run_job, capacity=int(os.environ.get("QUEUE_CAPACITY", "1000")))
     try:
         yield
     finally:
@@ -67,9 +69,20 @@ async def bound_uploads(request, call_next):
 
 def run_job(data, options):
     options = Options.model_validate(options)
+    started = time.perf_counter()
+    remote = data is None
     if data is None:
-        data = fetch_image(options.imageurl)
-    return process_image(data, options)
+        try:
+            data = fetch_image(options.imageurl)
+        except Exception as exc:
+            raise JobFailure('Source image download failed. The image host may block the server or the URL may have expired.') from exc
+    logging.getLogger("uvicorn.error").info("Timing input: source=%s bytes=%s download=%.2fs", "URL" if remote else "upload", len(data), time.perf_counter() - started)
+    try:
+        return process_image(data, options)
+    except JobFailure:
+        raise
+    except Exception as exc:
+        raise JobFailure('Vehicle image processing failed. Check server logs for this job ID (model, image, or background error).') from exc
 
 
 class Options(BaseModel):
@@ -136,6 +149,7 @@ def fetch_image(url: str) -> bytes:
 
 
 def process_image(data: bytes, options: Options) -> bytes:
+    started = time.perf_counter()
     try:
         with warnings.catch_warnings():
             warnings.simplefilter('error', Image.DecompressionBombWarning)
@@ -146,17 +160,24 @@ def process_image(data: bytes, options: Options) -> bytes:
                 image = source.copy()
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning) as exc:
         raise ValueError('Invalid or oversized image') from exc
+    logging.getLogger("uvicorn.error").info("Timing decode: %sx%s %.2fs", image.width, image.height, time.perf_counter() - started)
+    started = time.perf_counter()
     background = None
     if options.isBackgroundWant:
         path = BACKGROUNDS / options.backgroundFolder / f'{options.background}.png'
         if not path.is_file():
-            raise ValueError(f'Background {options.background} is not available in {options.backgroundFolder}')
+            raise JobFailure(f'Background {options.background} is not available in {options.backgroundFolder}')
         with Image.open(path) as im:
             background = im.convert('RGB')
+    logging.getLogger("uvicorn.error").info("Timing background load: %.2fs", time.perf_counter() - started)
+    started = time.perf_counter()
     with processing_lock:
+        logging.getLogger("uvicorn.error").info("Timing model lock wait: %.2fs", time.perf_counter() - started)
         result = pipeline.process(image, background, options.enhancment)
+    started = time.perf_counter()
     output = BytesIO()
     result.save(output, format='PNG')
+    logging.getLogger("uvicorn.error").info("Timing PNG encoding: %.2fs bytes=%s", time.perf_counter() - started, output.tell())
     return output.getvalue()
 
 
@@ -246,3 +267,32 @@ async def job_result(job_id: str, request: Request):
     if result is None:
         raise HTTPException(404, 'Result expired')
     return Response(result, media_type='image/png')
+
+
+@app.post('/generate', response_class=Response,
+          responses={200: {"content": {"image/png": {}}}})
+async def generate(request: Request):
+    """Same inputs as /process; wait in the shared FIFO and return the PNG.
+
+    No client polling or automatic resubmission. Disconnecting discards delivery,
+    though already accepted work may still finish in the existing queue.
+    """
+    # Bound uploads only, never hold an upload slot while waiting for inference.
+    async with upload_slots:
+        submitted = await process(request)
+    job_id = submitted['jobId']
+    while True:
+        if await request.is_disconnected():
+            return Response(status_code=499)
+        job = await run_in_threadpool(request.app.state.jobs.get, job_id)
+        if job is None:
+            raise HTTPException(410, 'Image job expired')
+        if job['status'] == 'failed':
+            raise HTTPException(500, job['error'] or 'Image processing failed')
+        if job['status'] == 'completed':
+            result = await run_in_threadpool(request.app.state.jobs.get, job_id, True)
+            if result is None:
+                raise HTTPException(410, 'Image result expired')
+            return Response(result, media_type='image/png',
+                            headers={'Cache-Control': 'no-store'})
+        await asyncio.sleep(0.5)

@@ -16,4 +16,4 @@ RUN useradd --create-home --uid 10001 vehicle && chown -R vehicle:vehicle /app
 USER vehicle
 EXPOSE 8000
 # Uploads are bounded separately; inference runs in one disk-backed queue worker.
-CMD ["sh", "-c", "exec uvicorn vehicle_pipeline.api:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --limit-concurrency 128 --timeout-keep-alive 5"]
+CMD ["sh", "-c", "exec uvicorn vehicle_pipeline.api:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --limit-concurrency 1200 --timeout-keep-alive 5"]

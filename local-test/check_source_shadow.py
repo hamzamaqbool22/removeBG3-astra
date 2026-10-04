@@ -27,6 +27,16 @@ class ShadowRecoveryChecks(unittest.TestCase):
         self.assertGreaterEqual(float(shadow.min()),0)
         self.assertLessEqual(float(shadow.max()),1)
 
+    def test_floor_line_crossing_shadow_is_removed(self):
+        rgb, alpha = self.scene()
+        cv2.ellipse(rgb,(200,170),(100,20),0,0,360,(75,75,75),-1)
+        # A thin dark seam connects to the real shadow and extends sideways.
+        cv2.line(rgb,(45,178),(355,178),(15,15,15),3)
+        shadow = recover_shadow(rgb,alpha)
+        self.assertIsNotNone(shadow)
+        self.assertLess(float(shadow[178,70]),.03)
+        self.assertGreater(float(shadow[170,200]),.4)
+
     def test_flat_ground_does_not_invent_source_shadow(self):
         rgb, alpha = self.scene()
         self.assertIsNone(recover_shadow(rgb,alpha))

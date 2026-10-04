@@ -89,9 +89,12 @@ def composite_parking(cutout: np.ndarray, shadow: np.ndarray, geometry: dict,
         raise ValueError("Vehicle bounds and background must have usable dimensions")
     # Close photographic framing, with a height cap so front/rear views don't
     # get enlarged just to fill the width. Preserve the source perspective.
-    scale = min(.88 * w / bw, .48 * h / bh)
+    previous_scale = min(.88 * w / bw, .48 * h / bh)
+    scale = min(.88 * w / bw, .58 * h / bh)
     tx = .5 * w - scale * (x0 + x1) / 2
-    ty = .55 * h - scale * (y0 + y1) / 2
+    previous_ty = .55 * h - previous_scale * (y0 + y1) / 2
+    # Enlarge around the existing ground contact, rather than moving the tires.
+    ty = previous_ty + (previous_scale - scale) * geometry['ground_y']
     ty = float(np.clip(ty, 6 - scale * y0, h - 6 - scale * y1))
     matrix = np.array([[scale, 0, tx], [0, scale, ty]], np.float32)
     source_alpha = cutout[..., 3].astype(np.float32) / 255

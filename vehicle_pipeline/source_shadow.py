@@ -56,6 +56,12 @@ def recover_shadow(rgb, alpha):
     opacity=np.clip(1-smooth/base,0,.94).astype(np.float32)
     # OpenCV requires uint8 for a 7x7 median; preserve float opacity and
     # its precision with SciPy. nearest matches OpenCV's replicated borders.
+    # Dark floor seams can cross an otherwise valid shadow and become connected
+    # to it. Remove narrow opacity ridges, not just disconnected components.
+    # Grayscale opening preserves the broad shadow underneath those ridges.
+    seam_size=max(11,int(round(.025*min(bw,bh))) | 1)
+    seam_kernel=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(seam_size,seam_size))
+    opacity=cv2.morphologyEx(opacity,cv2.MORPH_OPEN,seam_kernel)
     opacity=median_filter(opacity,size=7,mode="nearest")
     opacity=cv2.bilateralFilter(opacity,9,.12,4)
     opacity=cv2.GaussianBlur(opacity,(0,0),max(.7,bw*.0012))

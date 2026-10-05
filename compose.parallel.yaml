@@ -1,0 +1,44 @@
+# Optional Linux-server add-on. Keep the existing compose.yaml running.
+# Use -p removebg-parallel so the original service/queue cannot be replaced.
+services:
+  vehicle-api-extra:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      API_KEY: ${API_KEY:?Use the same API_KEY as the existing API}
+      CPU_THREADS: ${PARALLEL_CPU_THREADS:-6}
+      QUEUE_CAPACITY: ${PARALLEL_QUEUE_CAPACITY:-500}
+      PRELOAD_MODEL: "true"
+      SEGMENTATION_MODE: ${PARALLEL_SEGMENTATION_MODE:-auto}
+    cpus: ${PARALLEL_CPUS:-6}
+    mem_limit: 24g
+    volumes:
+      - extra-vehicle-jobs:/app/.cache/jobs
+    stop_grace_period: 180s
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).read()"]
+      interval: 10s
+      timeout: 6s
+      start_period: 180s
+      retries: 6
+  generate-balancer:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    # Linux only: access the original API's host-loopback port without changing it.
+    network_mode: host
+    cpus: 0.5
+    mem_limit: 128m
+    ulimits:
+      nofile:
+        soft: 8192
+        hard: 8192
+    volumes:
+      - ./deploy/generate-balancer.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      vehicle-api-extra:
+        condition: service_healthy
+    stop_grace_period: 180s
+volumes:
+  extra-vehicle-jobs:

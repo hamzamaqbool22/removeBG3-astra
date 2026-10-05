@@ -1,6 +1,7 @@
 """Reusable, explicitly CPU-only segmentation session."""
 from pathlib import Path
 import os
+import logging
 
 import cv2
 import numpy as np
@@ -10,6 +11,9 @@ from PIL import Image
 class Segmenter:
     def __init__(self, model: str = "birefnet-general", threads: int | None = None,
                  model_dir: str | Path | None = None, memory_mode: str = 'balanced'):
+        self.segmentation_mode = os.environ.get("SEGMENTATION_MODE", "auto").strip().lower()
+        if self.segmentation_mode not in ("auto", "single"):
+            raise ValueError("SEGMENTATION_MODE must be auto or single")
         root = Path(__file__).resolve().parents[1]
         threads = threads if threads is not None else int(os.environ.get("CPU_THREADS", "6"))
         if threads < 1:
@@ -36,12 +40,15 @@ class Segmenter:
         self.model = model
         self.providers = self.session.inner_session.get_providers()
         self.last_info = {}
+        logging.getLogger("uvicorn.error").info("Segmentation mode: %s", self.segmentation_mode)
 
     def predict(self, rgb: np.ndarray) -> np.ndarray:
         if rgb.ndim != 3 or rgb.shape[2] != 3 or rgb.dtype != np.uint8:
             raise ValueError("Expected uint8 RGB image")
         mask = np.asarray(self.session.predict(Image.fromarray(rgb))[0], dtype=np.uint8)
         self.last_info = {'inference_passes': 1, 'adaptive_crop': None}
+        if self.segmentation_mode == 'single':
+            return mask
         # Distant vehicles lose small parts (particularly mirrors) when the
         # entire scene is resized for the network. Use the first mask only to
         # localize a generously padded crop, then rerun on original RGB pixels.

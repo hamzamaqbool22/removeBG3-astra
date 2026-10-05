@@ -12,7 +12,10 @@ RUN pip install --no-cache-dir .
 RUN python -c "from rembg.sessions.birefnet_general import BiRefNetSessionGeneral; BiRefNetSessionGeneral.download_models()"
 COPY backgrounds/parking-lots ./backgrounds/parking-lots
 COPY backgrounds/backgrounds ./backgrounds/backgrounds
-RUN useradd --create-home --uid 10001 vehicle && chown -R vehicle:vehicle /app
+# Pre-create the volume mount point so fresh named volumes inherit writable ownership.
+RUN useradd --create-home --uid 10001 vehicle \
+    && mkdir -p /app/.cache/jobs /app/.cache/numba \
+    && chown -R vehicle:vehicle /app
 USER vehicle
 EXPOSE 8000
 # Uploads are bounded separately; inference runs in one disk-backed queue worker.

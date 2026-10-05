@@ -71,6 +71,7 @@ def main():
         try:
             with urlopen(Request(args.url, bodies[path], headers), timeout=args.timeout) as response:
                 item['http_status'] = response.status
+                item['worker'] = response.headers.get('X-Image-Worker', 'not-reported')
                 result = response.read()
             with Image.open(BytesIO(result)) as image:
                 if image.format != 'PNG':
@@ -97,9 +98,12 @@ def main():
     success = sum(item['ok'] for item in results)
     report = {'requests':args.count,'concurrency':concurrency,'success':success,
               'elapsed_seconds':round(elapsed,2),'images_per_minute':round(success*60/elapsed,2),
+              'worker_counts':{worker:sum(item.get('worker') == worker for item in results)
+                               for worker in sorted({item.get('worker', 'not-reported') for item in results})},
               'results':sorted(results,key=lambda item:item['request'])}
     (output / 'report.json').write_text(json.dumps(report, indent=2))
     print(f'Finished: {success}/{args.count} succeeded in {elapsed:.1f}s. Outputs: {output}', flush=True)
+    print('Requests by worker:', report['worker_counts'], flush=True)
     print('Times include queue waiting. No automatic retries. First request may include model loading.')
     raise SystemExit(0 if success == args.count else 1)
 

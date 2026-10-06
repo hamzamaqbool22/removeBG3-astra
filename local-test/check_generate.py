@@ -32,6 +32,10 @@ def fake(data, options):
         time.sleep(.01)
         if (options.get('imageurl') or '').endswith('/fail'):
             raise JobFailure('Expected test failure')
+        if options.get('output_format') == 'webp':
+            output = io.BytesIO()
+            Image.new('RGBA', (4,4), (20,30,40,128)).save(output, format='WEBP', quality=92)
+            return output.getvalue()
         return png.getvalue()
     finally:
         active -= 1
@@ -54,9 +58,9 @@ with tempfile.TemporaryDirectory() as directory:
         assert thread.is_alive() and time.monotonic() < deadline
         time.sleep(.01)
 
-    def post(body, content='application/json', key='test-only'):
+    def post(body, content='application/json', key='test-only', accept='image/png'):
         req = urllib.request.Request(base + '/generate', body,
-            {'Content-Type': content, 'Authorization': f'Bearer {key}'})
+            {'Content-Type': content, 'Authorization': f'Bearer {key}', 'Accept': accept})
         try:
             with urllib.request.urlopen(req, timeout=300) as response:
                 return response.status, response.headers, response.read()
@@ -90,6 +94,11 @@ with tempfile.TemporaryDirectory() as directory:
             assert multipart(png.getvalue())[0] == 200
             assert calls[-1][0] == png.getvalue()
             assert calls[-1][1]['enhancment'] is True
+            status, headers, result = post(b'{"imageurl":"https://example.com/webp"}', accept='image/webp')
+            assert status == 200 and headers['Content-Type'] == 'image/webp'
+            assert calls[-1][1]['output_format'] == 'webp'
+            with Image.open(io.BytesIO(result)) as decoded:
+                assert decoded.format == 'WEBP' and decoded.mode == 'RGBA'
             assert url_post('fail')[0] == 500
             assert post(b'{}')[0] == 422
             assert post(b'{}', key='wrong')[0] == 401

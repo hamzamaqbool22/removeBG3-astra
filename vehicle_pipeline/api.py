@@ -91,6 +91,7 @@ class Options(BaseModel):
     isBackgroundWant: bool = False
     background: int = Field(default=1, ge=1, le=9999)
     backgroundFolder: Literal["parking-lots", "backgrounds"] = "parking-lots"
+    output_format: Literal["png", "webp"] = "png"
     enhancment: bool = False  # Keep the spelling requested by the client.
 
     @field_validator('background', mode='before')
@@ -176,8 +177,11 @@ def process_image(data: bytes, options: Options) -> bytes:
         result = pipeline.process(image, background, options.enhancment)
     started = time.perf_counter()
     output = BytesIO()
-    result.save(output, format='PNG')
-    logging.getLogger("uvicorn.error").info("Timing PNG encoding: %.2fs bytes=%s", time.perf_counter() - started, output.tell())
+    if options.output_format == 'webp':
+        result.save(output, format='WEBP', quality=92, method=4)
+    else:
+        result.save(output, format='PNG')
+    logging.getLogger("uvicorn.error").info("Timing %s encoding: %.2fs bytes=%s", options.output_format, time.perf_counter() - started, output.tell())
     return output.getvalue()
 
 
@@ -237,6 +241,8 @@ async def process(request: Request):
             raise ValueError('Provide exactly one image upload or imageurl')
         if options.isBackgroundWant and not (BACKGROUNDS / options.backgroundFolder / f'{options.background}.png').is_file():
             raise ValueError('Selected background is not available')
+        if request.headers.get("accept") == "image/webp":
+            options = options.model_copy(update={"output_format": "webp"})
         job_id = await run_in_threadpool(request.app.state.jobs.submit, upload_data, options.model_dump())
     except OverflowError as exc:
         raise HTTPException(429, str(exc), headers={'Retry-After': '10'}) from exc
@@ -266,7 +272,7 @@ async def job_result(job_id: str, request: Request):
     result = await run_in_threadpool(request.app.state.jobs.get, job_id, True)
     if result is None:
         raise HTTPException(404, 'Result expired')
-    return Response(result, media_type='image/png')
+    return Response(result, media_type=('image/webp' if result[:4] == b'RIFF' and result[8:12] == b'WEBP' else 'image/png'))
 
 
 @app.post('/generate', response_class=Response,
@@ -293,6 +299,6 @@ async def generate(request: Request):
             result = await run_in_threadpool(request.app.state.jobs.get, job_id, True)
             if result is None:
                 raise HTTPException(410, 'Image result expired')
-            return Response(result, media_type='image/png',
+            return Response(result, media_type=('image/webp' if result[:4] == b'RIFF' and result[8:12] == b'WEBP' else 'image/png'),
                             headers={'Cache-Control': 'no-store'})
         await asyncio.sleep(0.5)

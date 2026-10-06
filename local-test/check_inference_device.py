@@ -26,6 +26,17 @@ class Checks(unittest.TestCase):
   with self.assertRaisesRegex(RuntimeError,'refusing CPU fallback'):self.session('cuda',fallback=True)
  def test_invalid_device(self):
   with self.assertRaises(ValueError):self.session('automatic')
- def test_key_required(self):
-  with patch.dict(os.environ,{},clear=True),self.assertRaisesRegex(RuntimeError,'API_KEY'):runpy.run_path(str(ROOT/'main.py'))
+ def test_entrypoint_without_key(self):
+  api=types.ModuleType('vehicle_pipeline.api');api.app=object()
+  with patch.dict(os.environ,{},clear=True),patch.dict(sys.modules,{'vehicle_pipeline.api':api}):
+   self.assertIs(runpy.run_path(str(ROOT/'main.py'))['app'],api.app)
+ def test_existing_backend_auth_is_preserved(self):
+  from vehicle_pipeline import api
+  from fastapi import HTTPException
+  request=types.SimpleNamespace(headers={})
+  with patch.object(api,'API_KEY',''):
+   api.authenticate(request)
+  with patch.object(api,'API_KEY','test-secret'):
+   with self.assertRaises(HTTPException):api.authenticate(request)
+   api.authenticate(types.SimpleNamespace(headers={'authorization':'Bearer test-secret'}))
 unittest.main()

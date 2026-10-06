@@ -3,7 +3,9 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/workspace/removeBG3-astra}"
 cd "$APP_DIR"
-: "${API_KEY:?Set API_KEY in your Vast instance environment}"
+# Vast testing only: disable authentication for this launched process.
+# The existing CPU deployment and its API_KEY are not modified.
+export API_KEY=""
 mkdir -p .cache
 command -v flock >/dev/null || { echo "Install util-linux (flock) first"; exit 1; }
 # Serialize setup and keep a separate lifetime lock for this API only.

@@ -1,4 +1,4 @@
-"""Reusable, explicitly CPU-only segmentation session."""
+"""Reusable segmentation session; CPU by default, CUDA only by explicit opt-in."""
 from pathlib import Path
 import os
 import logging
@@ -23,6 +23,17 @@ class Segmenter:
         os.environ["U2NET_HOME"] = str(cache.resolve())
         os.environ.setdefault("NUMBA_CACHE_DIR", str(root / ".cache/numba"))
         import onnxruntime as ort
+        device = os.environ.get("INFERENCE_DEVICE", "cpu").strip().lower()
+        if device not in ("cpu", "cuda"):
+            raise ValueError("INFERENCE_DEVICE must be cpu or cuda")
+        providers = ["CPUExecutionProvider"]
+        if device == "cuda":
+            if not hasattr(ort, "preload_dlls"):
+                raise RuntimeError("GPU mode requires onnxruntime-gpu with preload_dlls")
+            ort.preload_dlls(directory="")
+            if "CUDAExecutionProvider" not in ort.get_available_providers():
+                raise RuntimeError("CUDA provider is unavailable")
+            providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
         from rembg.sessions import sessions_class
         cls = next((c for c in sessions_class if c.name() == model), None)
         if cls is None:
@@ -36,9 +47,13 @@ class Segmenter:
         if memory_mode == 'lean':
             opts.enable_cpu_mem_arena = False
             opts.enable_mem_pattern = False
-        self.session = cls(model, opts, providers=["CPUExecutionProvider"])
+        self.session = cls(model, opts, providers=providers)
         self.model = model
         self.providers = self.session.inner_session.get_providers()
+        if device == "cuda" and "CUDAExecutionProvider" not in self.providers:
+            raise RuntimeError("CUDA initialization failed; refusing CPU fallback")
+        logging.getLogger("uvicorn.error").info(
+            "Inference device: %s; providers: %s", device, self.providers)
         self.last_info = {}
         logging.getLogger("uvicorn.error").info("Segmentation mode: %s", self.segmentation_mode)
 

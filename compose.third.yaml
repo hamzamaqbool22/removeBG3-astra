@@ -1,0 +1,44 @@
+# Optional Linux-server add-on. Keep the existing compose.yaml running.
+# Use -p removebg-third so the original service/queue cannot be replaced.
+services:
+  vehicle-api-third:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8003:8000"
+    environment:
+      API_KEY: ${API_KEY:?Use the same API_KEY as the existing API}
+      CPU_THREADS: ${THIRD_CPU_THREADS:-4}
+      QUEUE_CAPACITY: ${THIRD_QUEUE_CAPACITY:-500}
+      PRELOAD_MODEL: "true"
+      SEGMENTATION_MODE: single
+    cpus: ${THIRD_CPUS:-4}
+    mem_limit: 20g
+    volumes:
+      - third-vehicle-jobs:/app/.cache/jobs
+    stop_grace_period: 180s
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).read()"]
+      interval: 10s
+      timeout: 6s
+      start_period: 180s
+      retries: 6
+  generate-balancer-three:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    # Linux only: access the original API's host-loopback port without changing it.
+    network_mode: host
+    cpus: 0.5
+    mem_limit: 128m
+    ulimits:
+      nofile:
+        soft: 8192
+        hard: 8192
+    volumes:
+      - ./deploy/generate-balancer-three.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      vehicle-api-third:
+        condition: service_healthy
+    stop_grace_period: 180s
+volumes:
+  third-vehicle-jobs:

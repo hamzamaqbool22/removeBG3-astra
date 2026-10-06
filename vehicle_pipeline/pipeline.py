@@ -8,7 +8,7 @@ from PIL import Image, ImageOps, ImageEnhance
 from .segmentation import Segmenter, refine_mask
 from .geometry import estimate_geometry
 from .placement import Framing, normalize
-from .shadows import render_shadows
+from .contact_shadow import complete_contact_shadow
 from .parking import composite_parking
 from .source_shadow import recover_shadow
 
@@ -39,17 +39,19 @@ class VehiclePipeline:
         geometry = estimate_geometry(rgb, alpha)
         mark("geometry")
         source_shadow = recover_shadow(rgb, alpha)
-        mark("source shadow recovery")
+        had_source = source_shadow is not None
+        source_shadow, generated = complete_contact_shadow(alpha, source_shadow)
+        logging.getLogger("uvicorn.error").info("Shadow mode: %s",
+            "synthetic weak-source replacement" if generated.any() and had_source else
+            "synthetic missing-source footprint" if generated.any() else "preserved source")
+        mark("source shadow recovery and contact completion")
         color, alpha, geometry, placement = normalize(rgb, alpha, geometry, Framing())
         mark("placement")
-        if source_shadow is not None:
-            # Preserve the photographed cast-shadow direction and extent. Do
-            # not stack synthetic shading onto it (that doubles the darkness).
-            shadow = cv2.warpAffine(source_shadow, np.asarray(placement["matrix"], np.float32),
-                                    (alpha.shape[1], alpha.shape[0]), flags=cv2.INTER_LINEAR)
-            shadow = np.clip(shadow, 0, .97)
-        else:
-            shadow = render_shadows(alpha.shape, geometry)["combined"]
+        # Recover or synthesize in source coordinates, then transform the car
+        # and shadow together. Weak shadows are replaced; strong ones stay intact.
+        shadow = cv2.warpAffine(source_shadow, np.asarray(placement["matrix"], np.float32),
+                               (alpha.shape[1], alpha.shape[0]), flags=cv2.INTER_LINEAR)
+        shadow = np.clip(shadow, 0, .97)
         mark("shadow rendering")
         cutout = np.dstack([color, alpha])
         if background is not None:

@@ -30,6 +30,19 @@ def recover_shadow(rgb, alpha):
     distance = cv2.distanceTransform((~mask).astype(np.uint8), cv2.DIST_L2, 5)
     lum = color @ np.array([.2126,.7152,.0722],np.float32)
     smooth = cv2.GaussianBlur(lum,(0,0),max(.8,bw*.0015))
+    # Repeated floor tiles are reflectance, not holes in the shadow. Detect
+    # distributed contrast away from the car, then estimate illumination at a
+    # coarser scale only on those floors. Normalized convolution excludes car
+    # pixels: a dark body must never bleed into a manufactured shadow.
+    ground = (~mask).astype(np.float32)
+    sigma = max(1., bw*.009)
+    coarse = cv2.GaussianBlur(lum*ground,(0,0),sigma) / np.maximum(
+        cv2.GaussianBlur(ground,(0,0),sigma), 1e-6)
+    texture_region = roi & (distance > .10*bh) & (yy > y0+.80*bh)
+    texture = np.abs(smooth-coarse)[texture_region]
+    patterned = len(texture) > 300 and np.mean(texture > .035) > .30
+    if patterned:
+        smooth = coarse
     # Fit low-frequency pavement illumination; trim dark outliers (shadow,
     # cracks) and bright outliers (painted stripes) rather than transferring them.
     samples = roi & (distance > .07*bh) & (np.ptp(color,axis=2)<.24) & (lum>.12) & (lum<.94)
@@ -87,6 +100,16 @@ def recover_shadow(rgb, alpha):
     # Close small pavement markings inside the shadow, preserving its contour.
     opacity=cv2.morphologyEx(opacity,cv2.MORPH_CLOSE,kernel)
     support=cv2.GaussianBlur(accepted.astype(np.float32),(0,0),max(.65,bw*.001))
+    if patterned:
+        # The .16 candidate threshold locates connected shadow cores, not the
+        # penumbra boundary. Recover the low-opacity tails around those cores
+        # instead of cutting them off at every bright tile. This support is
+        # still gated by measured attenuation and the plausible ground ROI.
+        radius = max(2, int(round(.022*bh)))
+        expanded = cv2.dilate(accepted, cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,(2*radius+1,2*radius+1))).astype(np.float32)
+        support = cv2.GaussianBlur(expanded,(0,0),max(1.,bw*.006))
+        support *= (roi | mask)
     recovered=opacity*support
     # Missing pixels outside a cropped source cannot be reconstructed. Taper
     # that boundary instead of exporting an artificial straight shadow edge.

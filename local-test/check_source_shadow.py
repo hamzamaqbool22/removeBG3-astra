@@ -45,5 +45,29 @@ class ShadowRecoveryChecks(unittest.TestCase):
         rgb, alpha = self.scene()
         self.assertIsNone(recover_shadow(rgb,np.zeros_like(alpha)))
 
+    def test_patterned_floor_keeps_shadow_continuous(self):
+        rgb, alpha = self.scene()
+        yy, xx = np.mgrid[:240,:400]
+        tiles = np.where((xx//6 + yy//6)%2, 210., 165.)
+        attenuation = .65*np.exp(-((xx-200)/100)**4-((yy-160)/28)**2)
+        ground = tiles*(1-attenuation)
+        rgb[:] = ground[...,None].astype(np.uint8)
+        rgb[alpha>0] = 40
+        shadow = recover_shadow(rgb,alpha)
+        self.assertIsNotNone(shadow)
+        # Across alternating tiles, the shadow must remain connected.
+        self.assertGreater(float(shadow[170,150:250].min()), .20)
+        self.assertLess(float(shadow[:30].max()), .01)
+        self.assertLess(float(shadow[220:].max()), .08)
+
+    def test_dark_car_on_patterned_floor_does_not_bleed(self):
+        rgb, alpha = self.scene()
+        yy, xx = np.mgrid[:240,:400]
+        rgb[:] = np.where((xx//6 + yy//6)%2,210,165)[...,None]
+        rgb[alpha>0] = 0
+        shadow = recover_shadow(rgb,alpha)
+        if shadow is not None:
+            self.assertLess(float(shadow[alpha==0].max()), .16)
+
 if __name__ == '__main__':
     unittest.main()

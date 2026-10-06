@@ -173,3 +173,31 @@ each mode. A queue-inclusive 15-second HTTP request alone does not prove two
 inference passes. The eight-image set may not contain any small-car two-pass
 cases: include the actual slow photo in images/ for a follow-up comparison.
 Docker's --env-file parser expects an unquoted API_KEY value.
+
+## Optional third-instance comparison
+
+Upload compose.third.yaml, deploy/generate-balancer-three.conf and
+local-test/compare_instances.sh alongside the current files. Run
+`bash local-test/compare_instances.sh` as the normal SSH user in /opt/removebg.
+Avoid other generation traffic during this experiment. The original instance
+must already use single-pass mode; the script sets the second to single/6 threads.
+It compares two repeated 16-image batches at concurrency 3 on two versus three
+instances. Both tests use the same image distribution and warmups. The third gets
+4 CPU threads, a 4 CPU quota, its own queue on port 8003 and 20 GiB memory ceiling;
+the trial balancer listens only on host loopback 8004. This tests adding capacity
+to the existing 8+6 allocation: 18 CPU quota units can contend on the reported
+16-physical-core host. It is not a claim of optimal CPU partitioning.
+
+Expected retained model RAM from measurements is ~42 GiB for three, but peaks can
+be larger. The script requires 22 GiB MemAvailable before starting the third;
+this is only a preflight check, not protection against other services growing.
+Monitor `sudo docker stats` and `free -h` in another SSH terminal. The 20 GiB
+third-instance cap may expose an OOM on larger inputs; do not raise it blindly.
+The script stops the third project on completion/failure after startup. It does
+not modify Laravel or route public traffic to the trial. Single-pass remains
+active in the existing second instance after the test. Outputs persist in a dated
+outputs/instances-* directory. A shell killed forcibly may skip cleanup; then run
+`sudo docker compose -p removebg-third -f compose.third.yaml stop` manually.
+
+Capacity remains per-instance (no shared FIFO); three queues can accept up to
+2000 jobs with current defaults, subject to payload limits and HTTP timeouts.

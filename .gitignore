@@ -11,3 +11,6 @@ review/
 :memory:.ses
 
 test.zip
+
+.venv-gpu/
+app.log

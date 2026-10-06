@@ -1,0 +1,11 @@
+# Vast-only environment. Do not install alongside CPU onnxruntime or pip install -e .
+rembg==2.0.69
+onnxruntime-gpu[cuda,cudnn]==1.22.0
+numpy>=2,<3
+Pillow>=11,<13
+opencv-python-headless>=4.10,<6
+scipy>=1.14,<2
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+python-multipart>=0.0.20,<1
+urllib3>=2.2,<3

@@ -8,9 +8,8 @@ from PIL import Image, ImageOps, ImageEnhance
 from .segmentation import Segmenter, refine_mask
 from .geometry import estimate_geometry
 from .placement import Framing, normalize
-from .contact_shadow import complete_contact_shadow
+from .shadow_selection import shadow_from_photo
 from .parking import composite_parking
-from .source_shadow import recover_shadow
 
 
 class VehiclePipeline:
@@ -38,13 +37,19 @@ class VehiclePipeline:
         mark("mask refinement")
         geometry = estimate_geometry(rgb, alpha)
         mark("geometry")
-        source_shadow = recover_shadow(rgb, alpha)
-        had_source = source_shadow is not None
-        source_shadow, generated = complete_contact_shadow(alpha, source_shadow)
-        logging.getLogger("uvicorn.error").info("Shadow mode: %s",
-            "synthetic weak-source replacement" if generated.any() and had_source else
-            "synthetic missing-source footprint" if generated.any() else "preserved source")
+        source_shadow, shadow_mode = shadow_from_photo(rgb, alpha)
+        logging.getLogger("uvicorn.error").info("Shadow mode: %s", shadow_mode)
         mark("source shadow recovery and contact completion")
+        if background is not None:
+            # Compose directly from source pixels. Normalizing onto a smaller
+            # canvas first and then enlarging loses wheel/paint detail and
+            # resamples the shadow edge twice. Parking placement is invariant
+            # to the intermediate uniform scale/translation.
+            result = composite_parking(np.dstack([rgb, alpha]),
+                                     np.uint8(np.rint(np.clip(source_shadow,0,.97)*255)),
+                                     geometry, background, enhancement)
+            mark("background compositing and enhancement")
+            return result
         color, alpha, geometry, placement = normalize(rgb, alpha, geometry, Framing())
         mark("placement")
         # Recover or synthesize in source coordinates, then transform the car
@@ -53,12 +58,6 @@ class VehiclePipeline:
                                (alpha.shape[1], alpha.shape[0]), flags=cv2.INTER_LINEAR)
         shadow = np.clip(shadow, 0, .97)
         mark("shadow rendering")
-        cutout = np.dstack([color, alpha])
-        if background is not None:
-            result = composite_parking(cutout, np.uint8(np.rint(shadow*255)),
-                                     geometry, background, enhancement)
-            mark("background compositing and enhancement")
-            return result
         if enhancement:
             color = np.asarray(ImageEnhance.Contrast(Image.fromarray(color)).enhance(1.02))
         # Car over black translucent shadow. Store straight RGBA so this PNG

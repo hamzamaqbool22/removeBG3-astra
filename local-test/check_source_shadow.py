@@ -60,6 +60,15 @@ class ShadowRecoveryChecks(unittest.TestCase):
         self.assertLess(float(shadow[:30].max()), .01)
         self.assertLess(float(shadow[220:].max()), .08)
 
+    def test_large_contrast_tiles_use_synthetic_fallback(self):
+        rgb, alpha = self.scene()
+        yy, xx = np.mgrid[:240,:400]
+        # Large checkerboard patches survive a small blur. They must not be
+        # mistaken for a strong photographed shadow and bypass completion.
+        rgb[:] = np.where((xx//18 + yy//18)%2,220,125)[...,None]
+        rgb[alpha>0] = 30
+        self.assertIsNone(recover_shadow(rgb,alpha))
+
     def test_dark_car_on_patterned_floor_does_not_bleed(self):
         rgb, alpha = self.scene()
         yy, xx = np.mgrid[:240,:400]

@@ -42,6 +42,15 @@ def recover_shadow(rgb, alpha):
     texture = np.abs(smooth-coarse)[texture_region]
     patterned = len(texture) > 300 and np.mean(texture > .035) > .30
     if patterned:
+        # Large tiles/reflections can survive the first smoothing scale and
+        # masquerade as a substantial shadow. Only recover a source shadow
+        # when the estimated floor illumination is stable across scales.
+        wide_sigma = sigma * 3
+        wide = cv2.GaussianBlur(lum*ground,(0,0),wide_sigma) / np.maximum(
+            cv2.GaussianBlur(ground,(0,0),wide_sigma), 1e-6)
+        unresolved = np.abs(coarse-wide)[texture_region]
+        if len(unresolved) > 300 and np.mean(unresolved > .035) > .20:
+            return None
         smooth = coarse
     # Fit low-frequency pavement illumination; trim dark outliers (shadow,
     # cracks) and bright outliers (painted stripes) rather than transferring them.

@@ -81,6 +81,14 @@ def complete_contact_shadow(alpha, recovered):
     outer = .14*np.exp(-.5*(dy/np.maximum(1,depth*1.65)[None,:])**2)
     contact = .95*np.exp(-.5*((yy-lower[None,:])/max(1,.012*bh))**2)
     band = np.maximum(np.maximum(core,outer),contact)*lateral[None,:]
+    if supported_wheels:
+        # Round the footprint ends in two dimensions. A fixed column fade
+        # leaves a straight wall beside bumper overhangs; taper farther inward
+        # as the shadow extends away from the wheel plane.
+        distance_from_end = np.minimum(columns-x0, x1-columns)[None, :]
+        rounded_width = .045*bw + .22*np.abs(dy)
+        rounded_edge = np.clip(distance_from_end/np.maximum(1., rounded_width), 0, 1)
+        band *= rounded_edge*rounded_edge*(3-2*rounded_edge)
     # Smoothly bound the field near the actual lower edge to avoid a vertical
     # artifact at bumper corners. Opaque car pixels are never modified.
     top = np.clip((yy-bottom[None,:]+.01*bh)/max(1,.01*bh),0,1)
@@ -115,8 +123,8 @@ def complete_contact_shadow(alpha, recovered):
             contact_x = x0 + start + float(np.mean(sole))
             width = max(3., min(.045*bw, max(.028*bw, len(sole)*.75)))
             tight = .96*np.exp(-.5*(((xx-contact_x)/width)**2 +
-                                   ((yy-contact_y-.003*bh)/max(1., .010*bh))**2))
-            soft = .65*np.exp(-.5*(((xx-contact_x)/(width*1.6))**2 +
+                                   ((yy-contact_y-.003*bh)/max(1., .013*bh))**2))
+            soft = .70*np.exp(-.5*(((xx-contact_x)/(width*1.6))**2 +
                                    ((yy-contact_y)/max(2., .024*bh))**2))
             added = np.maximum(added, np.maximum(tight, soft))
     # Source photos can end inside the penumbra. Fade at the source canvas

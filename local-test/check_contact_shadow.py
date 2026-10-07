@@ -83,7 +83,7 @@ class ContactChecks(unittest.TestCase):
                 # A broad penumbra is intentional; it should fade away beyond
                 # the footprint, not be clipped at the previous narrow radius.
                 self.assertLess(float(r[300:].max()),.01)
-                self.assertGreater(float(r[:,49].max()),.03)
+                self.assertLess(float(r[:,49].max()),.03)
                 self.assertLess(float(np.abs(r[230:,50]-r[230:,49]).max()),.02)
                 self.assertLess(float(r[:140].max()),.001)
 

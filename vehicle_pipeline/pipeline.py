@@ -8,7 +8,7 @@ from PIL import Image, ImageOps, ImageEnhance
 from .segmentation import Segmenter, refine_mask
 from .geometry import estimate_geometry
 from .placement import Framing, normalize
-from .shadow_selection import shadow_from_photo
+from .original_shadow import shadow_from_photo
 from .parking import composite_parking
 
 

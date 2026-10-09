@@ -197,3 +197,29 @@ batch, not a resume. The old isolated `batch.py` remains available.
 
 For GPU preparation of one image, add `--device cuda` to `prepare.py` after
 installing the GPU runtime. No production service configuration changes are needed.
+
+## Diagnose rectangular gaps (saved batch, seven images)
+
+The first vehicle batch contained orange rectangles in all seven inspected raw
+outputs, aligned with the predicted geometry region. These bright areas also
+correspond to holes in the transferred shadow. This is evidence of a generation
+artifact, not proof that the postprocessing mask alone is wrong.
+
+Our filled fifth conditioning channel differs from pinned upstream inference:
+its `cv2.fillPoly(mask[i].astype(np.uint8), ...)` modifies a temporary array and
+leaves the returned channel zero. Test that difference explicitly before changing
+defaults or declaring the model unsuitable. The experiment below changes only that
+channel, using the same prepared inputs, 50 steps and seed 42; GPU quality remains
+to be validated. Existing defaults and production services are unchanged.
+
+```bash
+.venv-gps/bin/python -u shadow-lab/gps/retest_geometry.py \
+  --batch outputs/gps-batches/20261009-165445-751236-gpu \
+  --out outputs/gps-geometry-zero-01
+```
+
+It reuses downloaded weights and segmentation results, loads GPS once, and writes
+seven comparison JPGs to `outputs/gps-geometry-zero-01/comparisons/`. Each compares
+normal shadows, previous AI, zero-channel AI and the new raw diagnostic image.
+Full masks/reports are retained in numbered case folders. Outputs are never
+overwritten. The equivalent single-image option is `infer.py --geometry-mode zero`.

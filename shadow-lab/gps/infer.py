@@ -120,7 +120,9 @@ class GPSRunner:
             torch.cuda.empty_cache()
             print(f'GPS models loaded once in {self.load_seconds:.1f}s', flush=True)
 
-    def run(self, input_folder, output_folder, samples=1, steps=50, seed=42):
+    def run(self, input_folder, output_folder, samples=1, steps=50, seed=42, geometry_mode="learned"):
+        if geometry_mode not in ('learned', 'zero'):
+            raise ValueError('geometry_mode must be learned or zero')
         import torch
         args = SimpleNamespace(input=Path(input_folder), out=Path(output_folder), samples=samples, steps=steps, seed=seed)
         if args.out.exists():
@@ -154,7 +156,11 @@ class GPSRunner:
                 w,h = h,w
                 angle += 90
             fg = np.array([x,y,w+1,h+1,angle]).astype(int)
-            region = geometry_region(pred, fg)
+            predicted_region = geometry_region(pred, fg)
+            Image.fromarray(predicted_region*255).save(args.out/'predicted-geometry-region.png')
+            # Explicit ablation: upstream fills an astype copy, leaving its fifth
+            # conditioning channel zero. Keep this selectable until GPU validation.
+            region = predicted_region if geometry_mode == 'learned' else np.zeros_like(predicted_region)
             Image.fromarray(region*255).save(args.out/'geometry-region.png')
             control_image = torch.cat([condition,torch.from_numpy(region.astype(np.float32))[None,None].cuda()],dim=1).to(dtype)
             labels = classifier(condition).topk(64,largest=True,sorted=False).indices[0].cpu().tolist()
@@ -233,7 +239,7 @@ class GPSRunner:
                 img.thumbnail((640,480))
                 sheet.paste(img,(x+(640-img.width)//2,y+30))
             sheet.save(args.out/'comparison.jpg',quality=95)
-            report = {'gpu':torch.cuda.get_device_name(0),'steps':args.steps,'samples':args.samples,
+            report = {'geometry_mode':geometry_mode, 'gpu':torch.cuda.get_device_name(0),'steps':args.steps,'samples':args.samples,
                 'seeds':list(range(args.seed,args.seed+args.samples)), 'load_seconds':load_seconds,
                 'generation_seconds':timings,'postprocess_seconds':post_times,
                 'peak_generation_allocated_gib':peak_generation,
@@ -255,6 +261,7 @@ def main():
     parser.add_argument('--samples', type=int, default=1)
     parser.add_argument('--steps', type=int, default=50)
     parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--geometry-mode', choices=('learned','zero'), default='learned')
     args = parser.parse_args()
     if not 1 <= args.samples <= 8 or not 1 <= args.steps <= 100:
         parser.error('Use 1–8 samples and 1–100 steps')
@@ -263,7 +270,7 @@ def main():
     if not (CACHE / 'ready.json').exists():
         parser.error('Run shadow-lab/gps/setup.sh first')
     runner = GPSRunner()
-    runner.run(args.input, args.out, args.samples, args.steps, args.seed)
+    runner.run(args.input, args.out, args.samples, args.steps, args.seed, geometry_mode=args.geometry_mode)
 
 
 if __name__ == '__main__':

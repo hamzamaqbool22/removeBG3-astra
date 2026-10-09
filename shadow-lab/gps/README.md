@@ -97,7 +97,7 @@ There is no automatic quality selection or silent fallback in this experiment.
   `astype` array fill and tensor-swap aliasing. No random box perturbation.
 - Calculate centroid conditioning once; don't accumulate it over diffusion steps.
 - Preserve the released adapter's four-token attention setting for compatibility.
-- Run the released 256px postprocessing network after releasing diffusion networks.
+- Keep diffusion, geometry and postprocessing networks loaded across images in the GPU batch.
 - Transfer only neutral shadow darkening onto the original background. This transfer
   is **our experimental integration**, not an official GPS quality claim. It can
   under-represent coloured shadows and can still produce bad shadow shapes.
@@ -157,3 +157,43 @@ A failed image does not stop the remaining images. Ctrl+C stops the batch and
 writes a summary; completed results stay saved. Exit code is 1 if any image fails,
 130 if interrupted, and 0 if every image succeeds. Re-running starts a fresh batch
 rather than overwriting or resuming previous results. No server processes are changed.
+
+## Faster GPU batch (recommended)
+
+Stop the old batch with Ctrl+C before upgrading. Existing installations only need
+this runtime upgrade; cached model weights are reused:
+
+```bash
+cd /workspace/removeBG3-astra
+git pull --ff-only
+bash shadow-lab/gps/enable_gpu.sh
+.venv-gps/bin/python -u shadow-lab/gps/gpu_batch.py \
+  --images /workspace/images-GPS \
+  --background backgrounds/parking-lots/6.png \
+  --samples 1 --steps 50 --seed 42
+```
+
+Stage 1 prepares all images using one CUDA BiRefNet session. Its subprocess exits
+before Stage 2, freeing segmentation GPU memory. Stage 2 loads GPS models once and
+reuses them for every prepared image. It retains the same 50 steps, seed, float32
+VAE, conditioning and vehicle-preservation rules. CPU image processing and disk
+I/O still occur; GPU utilization need not stay at 100%. Actual 4090 speed and peak
+memory must be measured on the instance; local tests cannot establish them.
+
+Results use `outputs/gps-batches/<timestamp>-gpu/`. Start/completion timestamps and
+active preparation/inference durations are printed for each image. Shared model
+loading is recorded separately in `model_startup_seconds` in `summary.json` and is
+included in total batch wall time. Per-image totals exclude both shared loading
+and waiting between the two stages; do not compare these directly with the old
+runner's model-reloading totals. `prepare-startup.log` and `inference-startup.log`
+contain model initialization output; per-image logs and comparisons remain in
+each numbered folder. The summary and CSV are refreshed throughout both stages.
+
+CUDA preparation is required: a missing CUDA execution provider stops the batch
+with an error. Ordinary image failures continue; CUDA/context/out-of-memory errors
+stop model reuse and preserve finished results. Incomplete rows are marked
+`unprocessed` or `interrupted`. Ctrl+C stops the run; a fresh command creates a new
+batch, not a resume. The old isolated `batch.py` remains available.
+
+For GPU preparation of one image, add `--device cuda` to `prepare.py` after
+installing the GPU runtime. No production service configuration changes are needed.

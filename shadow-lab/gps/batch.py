@@ -24,11 +24,13 @@ def duration(seconds):
     return f'{seconds:.1f}s ({seconds / 60:.1f} min)'
 
 
-def save_summary(folder, rows, started_at, elapsed, finished_at=None):
+def save_summary(folder, rows, started_at, elapsed, finished_at=None, extra=None):
     summary = {'started_at': started_at, 'finished_at': finished_at,
-               'elapsed_seconds': round(elapsed, 3), 'completed': len(rows),
+               'elapsed_seconds': round(elapsed, 3), 'completed': sum(r['status'] in ('ok','failed') for r in rows),
                'succeeded': sum(r['status'] == 'ok' for r in rows),
                'failed': sum(r['status'] == 'failed' for r in rows), 'images': rows}
+    if extra:
+        summary.update(extra)
     temp = folder / 'summary.json.tmp'
     temp.write_text(json.dumps(summary, indent=2))
     temp.replace(folder / 'summary.json')

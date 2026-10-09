@@ -4,7 +4,8 @@ Pillow==11.3.0
 opencv-python-headless==4.12.0.88
 scipy==1.15.3
 rembg==2.0.69
-onnxruntime==1.22.0
+onnxruntime==1.22.0; sys_platform != "linux"
+onnxruntime-gpu==1.22.0; sys_platform == "linux"
 diffusers==0.34.0
 transformers==4.44.2
 accelerate==1.8.1

@@ -124,3 +124,36 @@ No commercial licence clearance is implied by this test setup.
 ```bash
 .venv-gps/bin/python shadow-lab/gps/test_imaging.py
 ```
+
+## Batch test a folder
+
+```bash
+cd /workspace/removeBG3-astra
+git pull --ff-only
+.venv-gps/bin/python -u shadow-lab/gps/batch.py \
+  --images /workspace/images-GPS \
+  --background backgrounds/parking-lots/6.png \
+  --samples 1 --steps 50 --seed 42
+```
+
+All supported images directly inside that folder are attempted in sorted order
+(JPG/JPEG/PNG/WebP/BMP/TIF/TIFF, including filenames with spaces). Background-only
+or already-processed photos are not filtered out automatically; use original
+vehicle photos for a meaningful quality comparison.
+
+Each run creates `outputs/gps-batches/<timestamp>/`. Each numbered image folder
+contains `input/`, `result/`, `prepare.log` and `inference.log`. Open the result's
+`comparison.jpg` to compare no shadow, normal shadows and AI shadows.
+
+The terminal and `batch.log` show start/end timestamps (server timezone with UTC
+offset), completion time and duration for each image, and total batch duration.
+`timings.csv` and `summary.json` are refreshed after every image. Total per-image
+time includes preparation, model loading, generation and saving. Models reload
+per image in separate processes; these are end-to-end timings, not warm GPU
+throughput measurements. Detailed GPU generation times remain in each result's
+`report.json`. Stage output is captured in its log instead of flooding the console.
+
+A failed image does not stop the remaining images. Ctrl+C stops the batch and
+writes a summary; completed results stay saved. Exit code is 1 if any image fails,
+130 if interrupted, and 0 if every image succeeds. Re-running starts a fresh batch
+rather than overwriting or resuming previous results. No server processes are changed.

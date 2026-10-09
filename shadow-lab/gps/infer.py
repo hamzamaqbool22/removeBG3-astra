@@ -59,8 +59,7 @@ def main():
     torch.cuda.reset_peak_memory_stats()
     print('Loading SDXL; the first run also initializes CUDA.', flush=True)
 
-    def load(path):
-        return torch.load(path, map_location='cpu', weights_only=True)
+    from checkpoint import load_checkpoint as load
 
     with torch.inference_mode():
         pipe = StableDiffusionXLPipeline.from_pretrained(
